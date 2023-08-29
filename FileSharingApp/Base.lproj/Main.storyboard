@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Register View Controller-->
+        <!--Create a new account-->
         <scene sceneID="Y9R-af-XBW">
             <objects>
                 <viewController id="5gv-Rl-scl" customClass="RegisterViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -67,13 +67,13 @@
                             <constraint firstItem="HXM-j6-uD8" firstAttribute="centerX" secondItem="pPh-xw-5BY" secondAttribute="centerX" id="UJJ-Fl-xBE"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="TDh-8r-sXQ"/>
+                    <navigationItem key="navigationItem" title="Create a new account" id="TDh-8r-sXQ"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="f2T-E3-6j7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="949" y="787"/>
         </scene>
-        <!--Login View Controller-->
+        <!--Login-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="LoginViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -132,42 +132,80 @@
                             <constraint firstItem="KYs-7y-7c2" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="100" id="B6Y-sF-lh0"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="IEX-Om-sfn"/>
+                    <navigationItem key="navigationItem" title="Login" id="IEX-Om-sfn"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="950" y="4"/>
         </scene>
-        <!--Home View Controller-->
+        <!--Files in the cloud-->
         <scene sceneID="llL-X9-Zbp">
             <objects>
                 <viewController id="DQg-Ij-k0d" customClass="HomeViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lml-oK-Aka">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="740-cp-rmJ">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="777.66666666666663"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="qPp-PS-7Ax">
+                                <rect key="frame" x="59.666666666666657" y="787.66666666666663" width="274" height="34.333333333333371"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BFB-Xn-oq2">
+                                        <rect key="frame" x="0.0" y="0.0" width="87" height="34.333333333333336"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Sign out">
+                                            <color key="baseForegroundColor" systemColor="systemRedColor"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <segue destination="BYZ-38-t0r" kind="show" identifier="showLogin2" id="94M-Fv-tnn"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4cA-gK-Aul">
+                                        <rect key="frame" x="187" y="0.0" width="87" height="34.333333333333336"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Upload"/>
+                                        <connections>
+                                            <segue destination="WnK-74-twg" kind="show" identifier="showUpload" id="yfV-Ir-JbL"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="Jp7-Qh-w9o"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Jp7-Qh-w9o" firstAttribute="bottom" secondItem="qPp-PS-7Ax" secondAttribute="bottom" constant="20" id="DAd-yQ-xJA"/>
+                            <constraint firstItem="740-cp-rmJ" firstAttribute="leading" secondItem="Jp7-Qh-w9o" secondAttribute="leading" id="GBu-ZG-sXq"/>
+                            <constraint firstItem="qPp-PS-7Ax" firstAttribute="top" secondItem="740-cp-rmJ" secondAttribute="bottom" constant="10" id="X0X-Uu-2nb"/>
+                            <constraint firstItem="740-cp-rmJ" firstAttribute="trailing" secondItem="Jp7-Qh-w9o" secondAttribute="trailing" id="bOR-JO-6pC"/>
+                            <constraint firstItem="740-cp-rmJ" firstAttribute="top" secondItem="Jp7-Qh-w9o" secondAttribute="top" id="bwD-Zh-lK3"/>
+                            <constraint firstItem="qPp-PS-7Ax" firstAttribute="centerX" secondItem="lml-oK-Aka" secondAttribute="centerX" id="f03-xW-bOn"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="XAs-vt-mdO"/>
+                    <navigationItem key="navigationItem" title="Files in the cloud" id="XAs-vt-mdO"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3TV-IE-iB5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1840" y="4"/>
+            <point key="canvasLocation" x="1885" y="4"/>
         </scene>
-        <!--Upload View Controller-->
+        <!--Select files to upload-->
         <scene sceneID="zK1-jd-99F">
             <objects>
                 <viewController id="WnK-74-twg" customClass="UploadViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="cez-cN-k5C">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="9pW-T4-plU"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <navigationItem key="navigationItem" title="Select files to upload" id="TqH-Hj-X9C"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="t94-xu-luk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2663.3587786259541" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="2695" y="-398"/>
         </scene>
         <!--File Details View Controller-->
         <scene sceneID="GvY-XA-hDi">
@@ -182,7 +220,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EcW-HZ-5sL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3530.5343511450378" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="2694" y="313"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="W56-Cx-aKN">
@@ -210,6 +248,9 @@
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
