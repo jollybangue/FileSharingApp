@@ -13,11 +13,11 @@
             <objects>
                 <viewController id="5gv-Rl-scl" customClass="RegisterViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="pPh-xw-5BY">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="HXM-j6-uD8">
-                                <rect key="frame" x="45" y="99.999999999999986" width="303.33333333333331" height="212.66666666666663"/>
+                                <rect key="frame" x="45" y="159" width="303.33333333333331" height="212.66666666666663"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Register" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oXq-ft-abP">
                                         <rect key="frame" x="98.333333333333343" y="0.0" width="106.33333333333334" height="36"/>
@@ -45,17 +45,11 @@
                                         <rect key="frame" x="81.333333333333329" y="134" width="140.66666666666669" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Create account"/>
-                                        <connections>
-                                            <segue destination="DQg-Ij-k0d" kind="show" identifier="showHome2" id="ph0-Es-Hyx"/>
-                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jtf-HR-ZZm">
                                         <rect key="frame" x="0.0" y="178.33333333333331" width="303.33333333333331" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Already have an account? Login here"/>
-                                        <connections>
-                                            <segue destination="BYZ-38-t0r" kind="show" identifier="showLogin" id="PDC-1z-HsW"/>
-                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -78,11 +72,11 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="LoginViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="KYs-7y-7c2">
-                                <rect key="frame" x="42.666666666666657" y="99.999999999999986" width="308" height="212.66666666666663"/>
+                                <rect key="frame" x="42.666666666666657" y="203" width="308" height="212.66666666666663"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Login" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yEx-7B-vHa">
                                         <rect key="frame" x="118" y="0.0" width="71.666666666666686" height="36"/>
@@ -110,17 +104,11 @@
                                         <rect key="frame" x="116.33333333333334" y="134" width="75.333333333333343" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Sign in"/>
-                                        <connections>
-                                            <segue destination="DQg-Ij-k0d" kind="show" identifier="showHome" id="iOi-yi-e3U"/>
-                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R0Q-u4-kDe">
                                         <rect key="frame" x="0.0" y="178.33333333333331" width="308" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Don't have an account? Register here"/>
-                                        <connections>
-                                            <segue destination="5gv-Rl-scl" kind="show" identifier="showRegister" id="OhZ-yo-End"/>
-                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -143,15 +131,15 @@
             <objects>
                 <viewController id="DQg-Ij-k0d" customClass="HomeViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lml-oK-Aka">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="740-cp-rmJ">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="777.66666666666663"/>
+                                <rect key="frame" x="0.0" y="59" width="393" height="694.66666666666663"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="qPp-PS-7Ax">
-                                <rect key="frame" x="59.666666666666657" y="787.66666666666663" width="274" height="34.333333333333371"/>
+                                <rect key="frame" x="59.666666666666657" y="763.66666666666663" width="274" height="34.333333333333371"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BFB-Xn-oq2">
                                         <rect key="frame" x="0.0" y="0.0" width="87" height="34.333333333333336"/>
@@ -159,17 +147,11 @@
                                         <buttonConfiguration key="configuration" style="plain" title="Sign out">
                                             <color key="baseForegroundColor" systemColor="systemRedColor"/>
                                         </buttonConfiguration>
-                                        <connections>
-                                            <segue destination="BYZ-38-t0r" kind="show" identifier="showLogin2" id="94M-Fv-tnn"/>
-                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4cA-gK-Aul">
                                         <rect key="frame" x="187" y="0.0" width="87" height="34.333333333333336"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Upload"/>
-                                        <connections>
-                                            <segue destination="WnK-74-twg" kind="show" identifier="showUpload" id="yfV-Ir-JbL"/>
-                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -196,7 +178,7 @@
             <objects>
                 <viewController id="WnK-74-twg" customClass="UploadViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="cez-cN-k5C">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="9pW-T4-plU"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -241,10 +223,6 @@
             <point key="canvasLocation" x="38.931297709923662" y="3.5211267605633805"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="ph0-Es-Hyx"/>
-        <segue reference="PDC-1z-HsW"/>
-    </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
