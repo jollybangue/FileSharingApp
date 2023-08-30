@@ -104,6 +104,9 @@
                                         <rect key="frame" x="116.33333333333334" y="134" width="75.333333333333343" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Sign in"/>
+                                        <connections>
+                                            <segue destination="DQg-Ij-k0d" kind="show" identifier="tempSegue" id="034-r4-bCS"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R0Q-u4-kDe">
                                         <rect key="frame" x="0.0" y="178.33333333333331" width="308" height="34.333333333333343"/>
@@ -135,7 +138,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="740-cp-rmJ">
-                                <rect key="frame" x="0.0" y="59" width="393" height="694.66666666666663"/>
+                                <rect key="frame" x="0.0" y="103" width="393" height="650.66666666666663"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="qPp-PS-7Ax">
