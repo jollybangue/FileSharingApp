@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>998347800181-e2i1g23cniocc9fargb8t0c7o8mcjj3b.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.998347800181-e2i1g23cniocc9fargb8t0c7o8mcjj3b</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDmGyEq1jb3RD33mjC4OxjiS9HYG6Z5Bvs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>998347800181</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.jolly.FileSharingApp</string>
+	<key>PROJECT_ID</key>
+	<string>rexmicrosystems</string>
+	<key>STORAGE_BUCKET</key>
+	<string>rexmicrosystems.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:998347800181:ios:2ce8b9dbf14df264a9023c</string>
+</dict>
+</plist>
