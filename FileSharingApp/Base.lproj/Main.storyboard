@@ -45,11 +45,18 @@
                                         <rect key="frame" x="81.333333333333329" y="134" width="140.66666666666669" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Create account"/>
+                                        <connections>
+                                            <action selector="createAccountButton:" destination="5gv-Rl-scl" eventType="touchUpInside" id="46P-P3-zRT"/>
+                                            <segue destination="DQg-Ij-k0d" kind="show" identifier="registerToHomeScreen" id="ke1-G6-ELX"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jtf-HR-ZZm">
                                         <rect key="frame" x="0.0" y="178.33333333333331" width="303.33333333333331" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Already have an account? Login here"/>
+                                        <connections>
+                                            <action selector="goToLoginButton:" destination="5gv-Rl-scl" eventType="touchUpInside" id="TRf-Bf-lAX"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -62,6 +69,10 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Create a new account" id="TDh-8r-sXQ"/>
+                    <connections>
+                        <outlet property="registerEmailTextField" destination="57m-P2-uud" id="GTl-TB-Pkn"/>
+                        <outlet property="registerPasswordTextField" destination="dZe-wP-Bf7" id="zWu-XQ-4ik"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="f2T-E3-6j7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -105,13 +116,16 @@
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Sign in"/>
                                         <connections>
-                                            <segue destination="DQg-Ij-k0d" kind="show" identifier="tempSegue" id="034-r4-bCS"/>
+                                            <action selector="signInButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NAU-o4-uIo"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R0Q-u4-kDe">
                                         <rect key="frame" x="0.0" y="178.33333333333331" width="308" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Don't have an account? Register here"/>
+                                        <connections>
+                                            <action selector="registerButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="t8x-cp-sr2"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -124,25 +138,29 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Login" id="IEX-Om-sfn"/>
+                    <connections>
+                        <outlet property="loginEmailTextField" destination="9RV-5p-K8s" id="XEv-b3-uQx"/>
+                        <outlet property="loginPasswordTextField" destination="vfK-Uh-xhz" id="pe4-9b-vCv"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="950" y="4"/>
+            <point key="canvasLocation" x="929" y="4"/>
         </scene>
         <!--Files in the cloud-->
         <scene sceneID="llL-X9-Zbp">
             <objects>
                 <viewController id="DQg-Ij-k0d" customClass="HomeViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lml-oK-Aka">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="740-cp-rmJ">
-                                <rect key="frame" x="0.0" y="103" width="393" height="650.66666666666663"/>
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="777.66666666666663"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="qPp-PS-7Ax">
-                                <rect key="frame" x="59.666666666666657" y="763.66666666666663" width="274" height="34.333333333333371"/>
+                                <rect key="frame" x="59.666666666666657" y="787.66666666666663" width="274" height="34.333333333333371"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BFB-Xn-oq2">
                                         <rect key="frame" x="0.0" y="0.0" width="87" height="34.333333333333336"/>

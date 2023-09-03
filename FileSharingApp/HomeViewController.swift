@@ -8,6 +8,8 @@
 import UIKit
 
 class HomeViewController: UIViewController {
+    
+    var username = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
