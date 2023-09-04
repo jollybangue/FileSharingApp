@@ -27,6 +27,7 @@
 		1BA87D4301779F12B2F93CB3 /* Pods-FileSharingApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileSharingApp.release.xcconfig"; path = "Target Support Files/Pods-FileSharingApp/Pods-FileSharingApp.release.xcconfig"; sourceTree = "<group>"; };
 		5AC7FD398398B8319F1345A6 /* Pods-FileSharingApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileSharingApp.debug.xcconfig"; path = "Target Support Files/Pods-FileSharingApp/Pods-FileSharingApp.debug.xcconfig"; sourceTree = "<group>"; };
 		E04B82A52AA40CF4002DF15C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E06740662AA658A200FD8A4E /* FileSharingApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FileSharingApp.entitlements; sourceTree = "<group>"; };
 		E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		E0B9A6552A9CFDC6003E39F2 /* UploadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewController.swift; sourceTree = "<group>"; };
@@ -92,6 +93,7 @@
 		E0DB8EB42A9C1F0C005B1E73 /* FileSharingApp */ = {
 			isa = PBXGroup;
 			children = (
+				E06740662AA658A200FD8A4E /* FileSharingApp.entitlements */,
 				E0DB8EB52A9C1F0C005B1E73 /* AppDelegate.swift */,
 				E0DB8EB72A9C1F0C005B1E73 /* SceneDelegate.swift */,
 				E0DB8EB92A9C1F0C005B1E73 /* LoginViewController.swift */,
@@ -378,6 +380,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FileSharingApp/FileSharingApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 85BX6YJYW5;
@@ -407,6 +410,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FileSharingApp/FileSharingApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 85BX6YJYW5;

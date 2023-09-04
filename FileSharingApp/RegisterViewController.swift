@@ -15,8 +15,10 @@ class RegisterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         // Do any additional setup after loading the view.
+        registerEmailTextField.placeholder = "Enter your email@rex.com"
+        registerPasswordTextField.placeholder = "Password"
+        registerPasswordTextField.isSecureTextEntry = true
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -40,7 +42,7 @@ class RegisterViewController: UIViewController {
             return
         }
         
-        Auth.auth().createUser(withEmail: email, password: password) { _, maybeError in
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] _, maybeError in
             
             if let error = maybeError {
                 let authenticationErrorCode = AuthErrorCode.Code(rawValue: error._code)
@@ -62,14 +64,12 @@ class RegisterViewController: UIViewController {
                 return
             }
             /// Handle successfull sign up
+            self?.performSegue(withIdentifier: "registerToHomeScreen", sender: email)
             AlertManager.showAlert(myTitle: "Account created", myMessage: "Account created successfully")
-            self.performSegue(withIdentifier: "registerToHomeScreen", sender: email)
         }
     }
     
     @IBAction func goToLoginButton(_ sender: UIButton) {
         performSegue(withIdentifier: "registerToLogin", sender: (Any).self)
     }
-    
-
 }

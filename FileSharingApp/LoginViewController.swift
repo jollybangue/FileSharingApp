@@ -17,6 +17,9 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        loginEmailTextField.placeholder = "Enter your email@rex.com"
+        loginPasswordTextField.placeholder = "Password"
+        loginPasswordTextField.isSecureTextEntry = true
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -72,6 +75,5 @@ class LoginViewController: UIViewController {
     @IBAction func registerButton(_ sender: UIButton) {
         performSegue(withIdentifier: "loginToRegister", sender: (Any).self)
     }
-    
 }
 
