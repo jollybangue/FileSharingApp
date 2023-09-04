@@ -13,11 +13,11 @@
             <objects>
                 <viewController id="5gv-Rl-scl" customClass="RegisterViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="pPh-xw-5BY">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="HXM-j6-uD8">
-                                <rect key="frame" x="45" y="159" width="303.33333333333331" height="212.66666666666663"/>
+                                <rect key="frame" x="45" y="99.999999999999986" width="303.33333333333331" height="212.66666666666663"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Register" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oXq-ft-abP">
                                         <rect key="frame" x="98.333333333333343" y="0.0" width="106.33333333333334" height="36"/>
@@ -56,6 +56,7 @@
                                         <buttonConfiguration key="configuration" style="plain" title="Already have an account? Login here"/>
                                         <connections>
                                             <action selector="goToLoginButton:" destination="5gv-Rl-scl" eventType="touchUpInside" id="TRf-Bf-lAX"/>
+                                            <segue destination="BYZ-38-t0r" kind="show" identifier="registerToLogin" id="GDP-Rw-Phe"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -76,18 +77,18 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="f2T-E3-6j7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="949" y="787"/>
+            <point key="canvasLocation" x="927" y="844"/>
         </scene>
         <!--Login-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="LoginViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="KYs-7y-7c2">
-                                <rect key="frame" x="42.666666666666657" y="203" width="308" height="212.66666666666663"/>
+                                <rect key="frame" x="42.666666666666657" y="99.999999999999986" width="308" height="212.66666666666663"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Login" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yEx-7B-vHa">
                                         <rect key="frame" x="118" y="0.0" width="71.666666666666686" height="36"/>
@@ -117,6 +118,7 @@
                                         <buttonConfiguration key="configuration" style="filled" title="Sign in"/>
                                         <connections>
                                             <action selector="signInButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NAU-o4-uIo"/>
+                                            <segue destination="DQg-Ij-k0d" kind="show" identifier="loginToHome" id="YY2-0Y-azn"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R0Q-u4-kDe">
@@ -125,6 +127,7 @@
                                         <buttonConfiguration key="configuration" style="plain" title="Don't have an account? Register here"/>
                                         <connections>
                                             <action selector="registerButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="t8x-cp-sr2"/>
+                                            <segue destination="5gv-Rl-scl" kind="show" identifier="loginToRegister" id="4vz-rz-kah"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -244,6 +247,11 @@
             <point key="canvasLocation" x="38.931297709923662" y="3.5211267605633805"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="4vz-rz-kah"/>
+        <segue reference="ke1-G6-ELX"/>
+        <segue reference="GDP-Rw-Phe"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

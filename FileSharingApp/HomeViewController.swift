@@ -4,6 +4,7 @@
 //
 //  Created by Jolly BANGUE on 2023-08-28.
 //
+/// Description: A native iOS app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication and Firebase Cloud Storage).
 
 import UIKit
 

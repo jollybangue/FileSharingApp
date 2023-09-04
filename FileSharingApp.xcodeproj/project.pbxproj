@@ -13,6 +13,7 @@
 		E0B9A6542A9CFC80003E39F2 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */; };
 		E0B9A6562A9CFDC6003E39F2 /* UploadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6552A9CFDC6003E39F2 /* UploadViewController.swift */; };
 		E0B9A6582A9CFE6A003E39F2 /* FileDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6572A9CFE6A003E39F2 /* FileDetailsViewController.swift */; };
+		E0D32C9C2AA62ECD00824B45 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */; };
 		E0DB8EB62A9C1F0C005B1E73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DB8EB52A9C1F0C005B1E73 /* AppDelegate.swift */; };
 		E0DB8EB82A9C1F0C005B1E73 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DB8EB72A9C1F0C005B1E73 /* SceneDelegate.swift */; };
 		E0DB8EBA2A9C1F0C005B1E73 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DB8EB92A9C1F0C005B1E73 /* LoginViewController.swift */; };
@@ -30,6 +31,7 @@
 		E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		E0B9A6552A9CFDC6003E39F2 /* UploadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewController.swift; sourceTree = "<group>"; };
 		E0B9A6572A9CFE6A003E39F2 /* FileDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailsViewController.swift; sourceTree = "<group>"; };
+		E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		E0DB8EB22A9C1F0C005B1E73 /* FileSharingApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FileSharingApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0DB8EB52A9C1F0C005B1E73 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E0DB8EB72A9C1F0C005B1E73 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -66,7 +68,6 @@
 				5AC7FD398398B8319F1345A6 /* Pods-FileSharingApp.debug.xcconfig */,
 				1BA87D4301779F12B2F93CB3 /* Pods-FileSharingApp.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -103,6 +104,7 @@
 				E0DB8EC02A9C1F0C005B1E73 /* LaunchScreen.storyboard */,
 				E0DB8EC32A9C1F0C005B1E73 /* Info.plist */,
 				E04B82A52AA40CF4002DF15C /* GoogleService-Info.plist */,
+				E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */,
 			);
 			path = FileSharingApp;
 			sourceTree = "<group>";
@@ -223,6 +225,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0D32C9C2AA62ECD00824B45 /* AlertManager.swift in Sources */,
 				E0DB8EBA2A9C1F0C005B1E73 /* LoginViewController.swift in Sources */,
 				E0B9A6562A9CFDC6003E39F2 /* UploadViewController.swift in Sources */,
 				E0DB8EB62A9C1F0C005B1E73 /* AppDelegate.swift in Sources */,
