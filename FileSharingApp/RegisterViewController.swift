@@ -16,9 +16,9 @@ class RegisterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        registerEmailTextField.placeholder = "Enter your email@rex.com"
-        registerPasswordTextField.placeholder = "Password"
-        registerPasswordTextField.isSecureTextEntry = true
+        
+        navigationItem.setHidesBackButton(true, animated: false)
+
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -32,8 +32,12 @@ class RegisterViewController: UIViewController {
         }
     }
     
+    func clearRegisterTextFields() {
+        registerEmailTextField.text = ""
+        registerPasswordTextField.text = ""
+    }
     
-    @IBAction func createAccountButton(_ sender: UIButton) {
+    @IBAction func didTapCreateAccount(_ sender: UIButton) {
         
         guard let email = registerEmailTextField.text, !email.isEmpty,
               let password = registerPasswordTextField.text, !password.isEmpty else {
@@ -65,11 +69,13 @@ class RegisterViewController: UIViewController {
             }
             /// Handle successfull sign up
             self?.performSegue(withIdentifier: "registerToHomeScreen", sender: email)
+            self?.clearRegisterTextFields()
             AlertManager.showAlert(myTitle: "Account created", myMessage: "Account created successfully")
         }
     }
     
-    @IBAction func goToLoginButton(_ sender: UIButton) {
+    @IBAction func didTapGoToLogin(_ sender: UIButton) {
         performSegue(withIdentifier: "registerToLogin", sender: (Any).self)
+        clearRegisterTextFields()
     }
 }

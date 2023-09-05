@@ -17,9 +17,9 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        loginEmailTextField.placeholder = "Enter your email@rex.com"
-        loginPasswordTextField.placeholder = "Password"
-        loginPasswordTextField.isSecureTextEntry = true
+        
+        navigationItem.setHidesBackButton(true, animated: false)
+
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -33,12 +33,18 @@ class LoginViewController: UIViewController {
             
         }
     }
+    
+    func clearLoginTextFields() {
+        loginEmailTextField.text = ""
+        loginPasswordTextField.text = ""
+    }
 
-    @IBAction func signInButton(_ sender: UIButton) {
+    @IBAction func didTapSignIn(_ sender: UIButton) {
         
         guard let email = loginEmailTextField.text, !email.isEmpty,
               let password = loginPasswordTextField.text, !password.isEmpty else {
             /// Show here an alert saying that there is something wrong...
+            
             AlertManager.showAlert(myTitle: "Login error", myMessage: "Email or password is empty")
             return
         }
@@ -69,11 +75,12 @@ class LoginViewController: UIViewController {
                 return
             }
             self?.performSegue(withIdentifier: "loginToHome", sender: email)
+            self?.clearLoginTextFields()
         }
     }
     
-    @IBAction func registerButton(_ sender: UIButton) {
+    @IBAction func didTapGoToRegister(_ sender: UIButton) {
         performSegue(withIdentifier: "loginToRegister", sender: (Any).self)
+        clearLoginTextFields()
     }
 }
-

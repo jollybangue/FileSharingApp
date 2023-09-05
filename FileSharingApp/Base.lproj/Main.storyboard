@@ -11,13 +11,13 @@
         <!--Create a new account-->
         <scene sceneID="Y9R-af-XBW">
             <objects>
-                <viewController id="5gv-Rl-scl" customClass="RegisterViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RegisterVC" id="5gv-Rl-scl" customClass="RegisterViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="pPh-xw-5BY">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="HXM-j6-uD8">
-                                <rect key="frame" x="45" y="99.999999999999986" width="303.33333333333331" height="212.66666666666663"/>
+                                <rect key="frame" x="45" y="203" width="303.33333333333331" height="212.66666666666663"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Register" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oXq-ft-abP">
                                         <rect key="frame" x="98.333333333333343" y="0.0" width="106.33333333333334" height="36"/>
@@ -25,7 +25,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="57m-P2-uud">
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter your email@rex.com" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="57m-P2-uud">
                                         <rect key="frame" x="1.6666666666666572" y="46" width="300" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="300" id="2aD-IP-Ect"/>
@@ -33,20 +33,20 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" textContentType="email"/>
                                     </textField>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="dZe-wP-Bf7">
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="dZe-wP-Bf7">
                                         <rect key="frame" x="1.6666666666666572" y="90" width="300" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="300" id="0UH-XS-ji8"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tpE-Mh-lNc">
                                         <rect key="frame" x="81.333333333333329" y="134" width="140.66666666666669" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Create account"/>
                                         <connections>
-                                            <action selector="createAccountButton:" destination="5gv-Rl-scl" eventType="touchUpInside" id="46P-P3-zRT"/>
+                                            <action selector="didTapCreateAccount:" destination="5gv-Rl-scl" eventType="touchUpInside" id="46P-P3-zRT"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jtf-HR-ZZm">
@@ -54,7 +54,7 @@
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Already have an account? Login here"/>
                                         <connections>
-                                            <action selector="goToLoginButton:" destination="5gv-Rl-scl" eventType="touchUpInside" id="TRf-Bf-lAX"/>
+                                            <action selector="didTapGoToLogin:" destination="5gv-Rl-scl" eventType="touchUpInside" id="TRf-Bf-lAX"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -82,13 +82,13 @@
         <!--Login-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="LoginViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginVC" id="BYZ-38-t0r" customClass="LoginViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="KYs-7y-7c2">
-                                <rect key="frame" x="42.666666666666657" y="99.999999999999986" width="308" height="212.66666666666663"/>
+                                <rect key="frame" x="42.666666666666657" y="203" width="308" height="212.66666666666663"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Login" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yEx-7B-vHa">
                                         <rect key="frame" x="118" y="0.0" width="71.666666666666686" height="36"/>
@@ -96,7 +96,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9RV-5p-K8s">
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter your email@rex.com" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9RV-5p-K8s">
                                         <rect key="frame" x="4" y="46" width="300" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="300" id="zCZ-dl-WRa"/>
@@ -104,20 +104,20 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" textContentType="email"/>
                                     </textField>
-                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="vfK-Uh-xhz">
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="vfK-Uh-xhz">
                                         <rect key="frame" x="4" y="90" width="300" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="300" id="tR3-pp-Znk"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gJi-Ul-bm9">
                                         <rect key="frame" x="116.33333333333334" y="134" width="75.333333333333343" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Sign in"/>
                                         <connections>
-                                            <action selector="signInButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NAU-o4-uIo"/>
+                                            <action selector="didTapSignIn:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NAU-o4-uIo"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R0Q-u4-kDe">
@@ -125,7 +125,7 @@
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Don't have an account? Register here"/>
                                         <connections>
-                                            <action selector="registerButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="t8x-cp-sr2"/>
+                                            <action selector="didTapGoToRegister:" destination="BYZ-38-t0r" eventType="touchUpInside" id="t8x-cp-sr2"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -153,17 +153,17 @@
         <!--Files in the cloud-->
         <scene sceneID="llL-X9-Zbp">
             <objects>
-                <viewController id="DQg-Ij-k0d" customClass="HomeViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HomeVC" id="DQg-Ij-k0d" customClass="HomeViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lml-oK-Aka">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="740-cp-rmJ">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="777.66666666666663"/>
+                                <rect key="frame" x="0.0" y="103" width="393" height="650.66666666666663"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="qPp-PS-7Ax">
-                                <rect key="frame" x="59.666666666666657" y="787.66666666666663" width="274" height="34.333333333333371"/>
+                                <rect key="frame" x="59.666666666666657" y="763.66666666666663" width="274" height="34.333333333333371"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BFB-Xn-oq2">
                                         <rect key="frame" x="0.0" y="0.0" width="87" height="34.333333333333336"/>
@@ -171,11 +171,17 @@
                                         <buttonConfiguration key="configuration" style="plain" title="Sign out">
                                             <color key="baseForegroundColor" systemColor="systemRedColor"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="didTapSignOut:" destination="DQg-Ij-k0d" eventType="touchUpInside" id="dZk-2P-l23"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4cA-gK-Aul">
                                         <rect key="frame" x="187" y="0.0" width="87" height="34.333333333333336"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Upload"/>
+                                        <connections>
+                                            <action selector="didTapUpload:" destination="DQg-Ij-k0d" eventType="touchUpInside" id="zHT-3w-nJC"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -192,6 +198,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Files in the cloud" id="XAs-vt-mdO"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="show" identifier="homeToLogin" id="8sn-f3-XdF"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3TV-IE-iB5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -200,7 +209,7 @@
         <!--Select files to upload-->
         <scene sceneID="zK1-jd-99F">
             <objects>
-                <viewController id="WnK-74-twg" customClass="UploadViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SelectFilesVC" id="WnK-74-twg" customClass="UploadViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="cez-cN-k5C">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -216,7 +225,7 @@
         <!--File Details View Controller-->
         <scene sceneID="GvY-XA-hDi">
             <objects>
-                <viewController id="iEf-02-Wb4" customClass="FileDetailsViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FileDetailsVC" id="iEf-02-Wb4" customClass="FileDetailsViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="7vg-ag-2MW">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -248,9 +257,8 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="ZF1-8q-IQR"/>
         <segue reference="LJP-q6-Jxn"/>
-        <segue reference="3wC-kx-vpf"/>
+        <segue reference="xRt-MX-7Ml"/>
     </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="systemBackgroundColor">
