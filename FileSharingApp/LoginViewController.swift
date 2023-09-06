@@ -13,7 +13,6 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var loginEmailTextField: UITextField!
     @IBOutlet weak var loginPasswordTextField: UITextField!
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -27,9 +26,9 @@ class LoginViewController: UIViewController {
         if let myHomeVC = segue.destination as? HomeViewController {
             
             // Pass the selected object to the new view controller.
-            if let extractedUserName = sender as? String {
-                myHomeVC.username = extractedUserName
-            }
+//            if let extractedUserName = sender as? String {
+//                myHomeVC.username = extractedUserName
+//            }
             
         }
     }
@@ -74,7 +73,16 @@ class LoginViewController: UIViewController {
                 
                 return
             }
-            self?.performSegue(withIdentifier: "loginToHome", sender: email)
+            
+            guard let userEmail = Auth.auth().currentUser?.email else {
+                print("Message from Login View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
+                return
+            }
+            
+            print("Message from Login View Controller: The current user is \(userEmail)")
+            
+            self?.performSegue(withIdentifier: "loginToHome", sender: (Any).self)
+            AlertManager.showAlert(myTitle: "Welcome", myMessage: "Welcome \(userEmail)")
             self?.clearLoginTextFields()
         }
     }

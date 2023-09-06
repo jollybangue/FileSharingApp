@@ -21,20 +21,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         /// With the code below, if the user is already logged in to the server, they will directly get the Home Screen when launching the app
         /// If the user is not yet logged in, they will get the Login Screen when launching the app.
+        guard let windowScene = scene as? UIWindowScene else {return}
         Auth.auth().addStateDidChangeListener { _, currentUser in
             if currentUser != nil {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
                 let navigationController = storyboard.instantiateInitialViewController() as? UINavigationController
                 let myRootViewController = storyboard.instantiateViewController(withIdentifier: "HomeVC") as UIViewController
                 navigationController?.viewControllers = [myRootViewController]
-                if let windowScene = scene as? UIWindowScene {
-                    let window = UIWindow(windowScene: windowScene)
-                    window.rootViewController = navigationController
-                    self.window = window
-                    window.makeKeyAndVisible()
-                }
+                let window = UIWindow(windowScene: windowScene)
+                window.rootViewController = navigationController
+                self.window = window
+                window.makeKeyAndVisible()
             }
-            print("The current logged in user is \(String(describing: currentUser))")
+            guard let userEmail = currentUser?.email else {
+                print("Message from SceneDelegate: The current logged in user is \(String(describing: currentUser?.email))")
+                return
+            }
+            print("Message from SceneDelegate: Welcome \(userEmail)")
+            
         }
 
     }

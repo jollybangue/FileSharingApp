@@ -10,14 +10,18 @@ import UIKit
 import FirebaseAuth
 
 class HomeViewController: UIViewController {
-    
-    var username = ""
-
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
         navigationItem.setHidesBackButton(true, animated: false)
+        
+        guard let userEmail = Auth.auth().currentUser?.email else {
+            print("Message from Home View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
+            return
+        }
+        print("Message from Home View Controller: The current user is \(userEmail)")
     }
     
     

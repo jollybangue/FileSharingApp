@@ -10,6 +10,8 @@ import FirebaseAuth
 
 class RegisterViewController: UIViewController {
     
+    let newUser = true
+    
     @IBOutlet weak var registerEmailTextField: UITextField!
     @IBOutlet weak var registerPasswordTextField: UITextField!
     
@@ -26,9 +28,9 @@ class RegisterViewController: UIViewController {
         if let homeVC = segue.destination as? HomeViewController {
             
             // Pass the selected object to the new view controller.
-            if let extractedUsername = sender as? String {
-                homeVC.username = extractedUsername
-            }
+//            if let extractedUsername = sender as? BooleanLiteralType {
+//                homeVC.isNewUser = extractedUsername
+//            }
         }
     }
     
@@ -67,10 +69,18 @@ class RegisterViewController: UIViewController {
                                                 }
                 return
             }
+            
+            guard let userEmail = Auth.auth().currentUser?.email else {
+                print("Message from Register View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
+                return
+            }
+            
+            print("Message from Register View Controller: The current user is \(userEmail)")
+            
             /// Handle successfull sign up
-            self?.performSegue(withIdentifier: "registerToHomeScreen", sender: email)
+            self?.performSegue(withIdentifier: "registerToHomeScreen", sender: (Any).self)
+            AlertManager.showAlert(myTitle: "Account created", myMessage: "Account created successfully. Welcome \(userEmail)")
             self?.clearRegisterTextFields()
-            AlertManager.showAlert(myTitle: "Account created", myMessage: "Account created successfully")
         }
     }
     
