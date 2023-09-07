@@ -34,9 +34,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 window.makeKeyAndVisible()
             }
             guard let userEmail = currentUser?.email else {
+                /// Printing a message test in console just for debugging
                 print("Message from SceneDelegate: The current logged in user is \(String(describing: currentUser?.email))")
                 return
             }
+            /// Printing a message test in console just for debugging
             print("Message from SceneDelegate: Welcome \(userEmail)")
             
         }

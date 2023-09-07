@@ -3,7 +3,7 @@
 //  FileSharingApp
 //
 //  Created by Jolly BANGUE on 2023-09-04.
-//
+/// A class for managing alerts
 
 import Foundation
 import UIKit

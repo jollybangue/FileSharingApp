@@ -10,18 +10,24 @@ import UIKit
 import FirebaseAuth
 
 class HomeViewController: UIViewController {
+    
+    // Later, I can add a label in Home screen to show the email of the currently logged in user and set the text with the value of userEmail...
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
+        /// Disable in the Navigation Controller the "Back to previous screen" button (located at the top left)
         navigationItem.setHidesBackButton(true, animated: false)
+        
+        // I prefer not to show alerts here because it will also imply the management of if conditions
+        // The alerts are directly triggered from Register or Login view controllers.
         
         guard let userEmail = Auth.auth().currentUser?.email else {
             print("Message from Home View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
             return
         }
         print("Message from Home View Controller: The current user is \(userEmail)")
+        
     }
     
     

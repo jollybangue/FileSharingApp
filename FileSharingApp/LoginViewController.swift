@@ -15,12 +15,13 @@ class LoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
+        /// Disable in the Navigation Controller the "Back to previous screen" button (located at the top left)
         navigationItem.setHidesBackButton(true, animated: false)
 
     }
     
+    /// Is "prepare for segue necessary in this case?"
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
         if let myHomeVC = segue.destination as? HomeViewController {
@@ -29,10 +30,10 @@ class LoginViewController: UIViewController {
 //            if let extractedUserName = sender as? String {
 //                myHomeVC.username = extractedUserName
 //            }
-            
         }
     }
     
+    /// This function clear the textfields of the Login screen when moving to another screen.
     func clearLoginTextFields() {
         loginEmailTextField.text = ""
         loginPasswordTextField.text = ""
@@ -42,14 +43,15 @@ class LoginViewController: UIViewController {
         
         guard let email = loginEmailTextField.text, !email.isEmpty,
               let password = loginPasswordTextField.text, !password.isEmpty else {
-            /// Show here an alert saying that there is something wrong...
-            
+            /// Show an alert saying that there is something wrong...
             AlertManager.showAlert(myTitle: "Login error", myMessage: "Email or password is empty")
             return
         }
         
+        /// Managing the authentication and login of an existing user, by using the Firebase Authentication feature.
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] _, maybeError in
             
+            /// Handling login errors
             if let error = maybeError {
                 let authenticationErrorCode = AuthErrorCode.Code(rawValue: error._code)
                 
@@ -74,13 +76,17 @@ class LoginViewController: UIViewController {
                 return
             }
             
+            /// Extraction of the user email
             guard let userEmail = Auth.auth().currentUser?.email else {
+                /// Printing a message test in console just for debugging
                 print("Message from Login View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
                 return
             }
             
+            /// Printing a message test in console just for debugging
             print("Message from Login View Controller: The current user is \(userEmail)")
             
+            /// Handling successfull login
             self?.performSegue(withIdentifier: "loginToHome", sender: (Any).self)
             AlertManager.showAlert(myTitle: "Welcome", myMessage: "Welcome \(userEmail)")
             self?.clearLoginTextFields()

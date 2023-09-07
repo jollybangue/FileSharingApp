@@ -10,19 +10,18 @@ import FirebaseAuth
 
 class RegisterViewController: UIViewController {
     
-    let newUser = true
-    
     @IBOutlet weak var registerEmailTextField: UITextField!
     @IBOutlet weak var registerPasswordTextField: UITextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         
+        /// Disable in the Navigation Controller the "Back to previous screen" button (located at the top left)
         navigationItem.setHidesBackButton(true, animated: false)
 
     }
     
+    /// Is "prepare for segue necessary in this case?"
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
         if let homeVC = segue.destination as? HomeViewController {
@@ -34,6 +33,7 @@ class RegisterViewController: UIViewController {
         }
     }
     
+    /// This function clear the textfields of the Register screen when moving to another screen.
     func clearRegisterTextFields() {
         registerEmailTextField.text = ""
         registerPasswordTextField.text = ""
@@ -48,8 +48,10 @@ class RegisterViewController: UIViewController {
             return
         }
         
+        /// Managing the creation of a new user (Register) using the Firebase Authentication feature.
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] _, maybeError in
             
+            /// Handling sign up (Register) errors
             if let error = maybeError {
                 let authenticationErrorCode = AuthErrorCode.Code(rawValue: error._code)
                 
@@ -70,16 +72,18 @@ class RegisterViewController: UIViewController {
                 return
             }
             
+            /// Extraction of the user email
             guard let userEmail = Auth.auth().currentUser?.email else {
+                /// Printing a message test in console just for debugging
                 print("Message from Register View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
                 return
             }
-            
+            /// Printing a message test in console just for debugging
             print("Message from Register View Controller: The current user is \(userEmail)")
             
-            /// Handle successfull sign up
+            /// Handling successfull registration
             self?.performSegue(withIdentifier: "registerToHomeScreen", sender: (Any).self)
-            AlertManager.showAlert(myTitle: "Account created", myMessage: "Account created successfully. Welcome \(userEmail)")
+            AlertManager.showAlert(myTitle: "Account created successfully", myMessage: "Welcome \(userEmail)")
             self?.clearRegisterTextFields()
         }
     }
