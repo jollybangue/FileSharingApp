@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseStorage
 
 class HomeViewController: UIViewController {
     
@@ -15,6 +16,11 @@ class HomeViewController: UIViewController {
     
     
     @IBOutlet weak var homeTableView: UITableView!
+    
+    private let myStorageRef = Storage.storage().reference()
+    
+    var fileList: [StorageReference] = []
+    //let prefixesList: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,10 +41,31 @@ class HomeViewController: UIViewController {
         }
         print("Message from Home View Controller: The current user is \(userEmail)")
         
+        myStorageRef.listAll { [self] result, error in
+            if let error = error {
+                
+            }
+            
+            guard let myItems = result?.items else {
+                return
+            }
+            
+            
+            for item in myItems {
+                fileList.append(item)
+            }
+            DispatchQueue.main.async {
+                self.homeTableView.reloadData()
+            }
+
+        }
+        
     }
     
     
     @IBAction func didTapUpload(_ sender: UIButton) {
+        
+        print("Number of files in the cloud: \(fileList.count)")
     }
     /*
     // MARK: - Navigation
@@ -77,13 +104,16 @@ class HomeViewController: UIViewController {
 extension HomeViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return fileList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         //Expression to be tested: let cell = UITableViewCell(style: .default, reuseIdentifier: "fileCell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "fileCell", for: indexPath)
-        cell.textLabel?.text = "Cloud file..."
+        
+        cell.textLabel?.text = fileList[indexPath.row].name
+        cell.textLabel?.adjustsFontSizeToFitWidth = true
+        //cell.textLabel?.text = "File..."
         return cell
     }
 
