@@ -20,6 +20,7 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         
         homeTableView.dataSource = self
+        homeTableView.delegate = self
         
         /// Disable in the Navigation Controller the "Back to previous screen" button (located at the top left)
         navigationItem.setHidesBackButton(true, animated: false)
@@ -80,7 +81,7 @@ extension HomeViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //To be tested: let cell = UITableViewCell(style: .default, reuseIdentifier: "fileCell")
+        //Expression to be tested: let cell = UITableViewCell(style: .default, reuseIdentifier: "fileCell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "fileCell", for: indexPath)
         cell.textLabel?.text = "Cloud file..."
         return cell
@@ -89,5 +90,5 @@ extension HomeViewController: UITableViewDataSource {
 }
 
 extension HomeViewController: UITableViewDelegate {
-    
+
 }

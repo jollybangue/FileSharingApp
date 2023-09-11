@@ -7,5 +7,6 @@ target 'FileSharingApp' do
 
   # Pods for FileSharingApp
   pod 'FirebaseAuth'
+  pod 'FirebaseStorage'
 
 end
