@@ -22,6 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         /// With the code below, if the user is already logged in to the server, they will directly get the Home Screen when launching the app
         /// If the user is not yet logged in, they will get the Login Screen when launching the app.
         guard let windowScene = scene as? UIWindowScene else {return}
+        
         Auth.auth().addStateDidChangeListener { _, currentUser in
             if currentUser != nil {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -32,6 +33,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 window.rootViewController = navigationController
                 self.window = window
                 window.makeKeyAndVisible()
+                
             }
             guard let userEmail = currentUser?.email else {
                 /// Printing a message test in console just for debugging

@@ -19,8 +19,8 @@ class HomeViewController: UIViewController {
     
     private let myStorageRef = Storage.storage().reference()
     
-    var fileList: [StorageReference] = []
-    //let prefixesList: [String] = []
+    var fileList: [StorageReference] = [] /// Array containing the names of the files stored in the cloud.
+    // let folderList: [String] = [] /// Array containing the names of the folders stored in the cloud.
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,27 +41,31 @@ class HomeViewController: UIViewController {
         }
         print("Message from Home View Controller: The current user is \(userEmail)")
         
+        /// Getting the list of files available in the cloud
         myStorageRef.listAll { [self] result, error in
-            if let error = error {
-                
+            if let unWrappedError = error {
+                print("The error is \(unWrappedError)")
             }
-            
-            guard let myItems = result?.items else {
+            guard let myItems = result?.items else { // Array of file names
                 return
             }
             
-            
-            for item in myItems {
-                fileList.append(item)
+            guard let myPrefixes = result?.prefixes else { // Array of folder names
+                return
             }
+            
+            fileList = myItems
+//            for item in myItems {
+//                fileList.append(item)
+//            }
+            /// Reloading the Home table view
             DispatchQueue.main.async {
                 self.homeTableView.reloadData()
             }
-
         }
         
+        // I need to implement the observe function here...
     }
-    
     
     @IBAction func didTapUpload(_ sender: UIButton) {
         
@@ -113,7 +117,7 @@ extension HomeViewController: UITableViewDataSource {
         
         cell.textLabel?.text = fileList[indexPath.row].name
         cell.textLabel?.adjustsFontSizeToFitWidth = true
-        //cell.textLabel?.text = "File..."
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 12)
         return cell
     }
 
