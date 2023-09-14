@@ -9,6 +9,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseStorage
+import FirebaseDatabase
 
 class HomeViewController: UIViewController {
     
@@ -18,10 +19,10 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var homeTableView: UITableView!
     
     private let myStorageRef = Storage.storage().reference()
-    //private let realtimeDBRef = Database.
+    private let realtimeDBRef = Database.database().reference()
     
-    var fileList: [StorageReference] = [] /// Array containing the names of the files stored in the cloud.
-    // let folderList: [String] = [] /// Array containing the names of the folders stored in the cloud.
+    var fileList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the files stored in the cloud.
+    // let folderList: [String] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
     
     override func viewDidLoad() {
         super.viewDidLoad()

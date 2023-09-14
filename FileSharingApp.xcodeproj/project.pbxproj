@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		35DAA24139476FA88B622B9D /* Pods_FileSharingApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1012ECD605220AE28F8C0AB0 /* Pods_FileSharingApp.framework */; };
-		E04B82A62AA40CF4002DF15C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E04B82A52AA40CF4002DF15C /* GoogleService-Info.plist */; };
+		E06CFF8A2AB37F7E00875D0E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */; };
 		E0B9A6522A9CFB7E003E39F2 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */; };
 		E0B9A6542A9CFC80003E39F2 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */; };
 		E0B9A6562A9CFDC6003E39F2 /* UploadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6552A9CFDC6003E39F2 /* UploadViewController.swift */; };
@@ -26,7 +26,7 @@
 		1012ECD605220AE28F8C0AB0 /* Pods_FileSharingApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FileSharingApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BA87D4301779F12B2F93CB3 /* Pods-FileSharingApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileSharingApp.release.xcconfig"; path = "Target Support Files/Pods-FileSharingApp/Pods-FileSharingApp.release.xcconfig"; sourceTree = "<group>"; };
 		5AC7FD398398B8319F1345A6 /* Pods-FileSharingApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileSharingApp.debug.xcconfig"; path = "Target Support Files/Pods-FileSharingApp/Pods-FileSharingApp.debug.xcconfig"; sourceTree = "<group>"; };
-		E04B82A52AA40CF4002DF15C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		E0B9A6552A9CFDC6003E39F2 /* UploadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewController.swift; sourceTree = "<group>"; };
@@ -103,7 +103,7 @@
 				E0DB8EBE2A9C1F0C005B1E73 /* Assets.xcassets */,
 				E0DB8EC02A9C1F0C005B1E73 /* LaunchScreen.storyboard */,
 				E0DB8EC32A9C1F0C005B1E73 /* Info.plist */,
-				E04B82A52AA40CF4002DF15C /* GoogleService-Info.plist */,
+				E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */,
 				E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */,
 			);
 			path = FileSharingApp;
@@ -170,7 +170,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E0DB8EC22A9C1F0C005B1E73 /* LaunchScreen.storyboard in Resources */,
-				E04B82A62AA40CF4002DF15C /* GoogleService-Info.plist in Resources */,
+				E06CFF8A2AB37F7E00875D0E /* GoogleService-Info.plist in Resources */,
 				E0DB8EBF2A9C1F0C005B1E73 /* Assets.xcassets in Resources */,
 				E0DB8EBD2A9C1F0C005B1E73 /* Main.storyboard in Resources */,
 			);
