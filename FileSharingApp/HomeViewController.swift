@@ -18,6 +18,7 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var homeTableView: UITableView!
     
     private let myStorageRef = Storage.storage().reference()
+    //private let realtimeDBRef = Database.
     
     var fileList: [StorageReference] = [] /// Array containing the names of the files stored in the cloud.
     // let folderList: [String] = [] /// Array containing the names of the folders stored in the cloud.
@@ -40,6 +41,8 @@ class HomeViewController: UIViewController {
             return
         }
         print("Message from Home View Controller: The current user is \(userEmail)")
+        
+
         
         /// Getting the list of files available in the cloud
         myStorageRef.listAll { [self] result, error in
@@ -70,6 +73,10 @@ class HomeViewController: UIViewController {
     @IBAction func didTapUpload(_ sender: UIButton) {
         
         print("Number of files in the cloud: \(fileList.count)")
+        print("Files in the cloud: \(fileList)")
+        
+        
+        
     }
     /*
     // MARK: - Navigation
@@ -124,5 +131,5 @@ extension HomeViewController: UITableViewDataSource {
 }
 
 extension HomeViewController: UITableViewDelegate {
-
+    
 }
