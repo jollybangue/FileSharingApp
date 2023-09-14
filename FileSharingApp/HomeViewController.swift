@@ -20,6 +20,8 @@ class HomeViewController: UIViewController {
     
     private let myStorageRef = Storage.storage().reference()
     private let realtimeDBRef = Database.database().reference()
+    private let parentNode = "Files"
+    //private var fileDetails:
     
     var fileList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the files stored in the cloud.
     // let folderList: [String] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
@@ -69,6 +71,19 @@ class HomeViewController: UIViewController {
         }
         
         // I need to implement the observe function here...
+    }
+    
+    private func getDataFromCloudStorage() {
+        
+    }
+    
+    private func setDataInRealtimeDB() {
+        
+    }
+    
+    private func getFileDetailsFromRTDB() {
+        // Observe...
+        
     }
     
     @IBAction func didTapUpload(_ sender: UIButton) {
