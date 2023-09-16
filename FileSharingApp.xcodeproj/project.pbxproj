@@ -92,6 +92,7 @@
 		E0DB8EB42A9C1F0C005B1E73 /* FileSharingApp */ = {
 			isa = PBXGroup;
 			children = (
+				E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */,
 				E0DB8EB52A9C1F0C005B1E73 /* AppDelegate.swift */,
 				E0DB8EB72A9C1F0C005B1E73 /* SceneDelegate.swift */,
 				E0DB8EB92A9C1F0C005B1E73 /* LoginViewController.swift */,
@@ -104,7 +105,6 @@
 				E0DB8EC02A9C1F0C005B1E73 /* LaunchScreen.storyboard */,
 				E0DB8EC32A9C1F0C005B1E73 /* Info.plist */,
 				E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */,
-				E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */,
 			);
 			path = FileSharingApp;
 			sourceTree = "<group>";

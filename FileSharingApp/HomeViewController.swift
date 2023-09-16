@@ -85,16 +85,6 @@ class HomeViewController: UIViewController {
         //"realtimeFileList" and "fileList" variables are not empty when we press the button.
 
     }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    
     
     @IBAction func didTapSignOut(_ sender: UIButton) {
         
@@ -116,7 +106,6 @@ class HomeViewController: UIViewController {
         
         present(confirmationAlert, animated: true)
     }
-
 }
 
 extension HomeViewController: UITableViewDataSource {
@@ -137,5 +126,43 @@ extension HomeViewController: UITableViewDataSource {
 }
 
 extension HomeViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let fileDetailsAlert = UIAlertController(title: realtimeFileList[indexPath.row].1, message: "Files details here...", preferredStyle: .alert)
+        
+        let openFileAction = UIAlertAction(title: "Open", style: .default) { _ in
+        }
+        
+        let downloadFileAction = UIAlertAction(title: "Download", style: .default) { _ in
+        }
+        
+        let shareFileAction = UIAlertAction(title: "Share", style: .default) { _ in
+            AlertManager.showAlert(myTitle: "", myMessage: "File link copied to clipboard")
+        }
+        
+        let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive)
+        
+        let cancelFileAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        fileDetailsAlert.addAction(openFileAction)
+        fileDetailsAlert.addAction(downloadFileAction)
+        fileDetailsAlert.addAction(shareFileAction)
+        fileDetailsAlert.addAction(deleteFileAction)
+        fileDetailsAlert.addAction(cancelFileAction)
+        
+        present(fileDetailsAlert, animated: true)
+    }
     
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let deleteFileContextualAction = UIContextualAction(style: .destructive, title: "Delete") { _,_,_ in
+            
+        }
+        
+        let deleteFileConfiguration = UISwipeActionsConfiguration(actions: [deleteFileContextualAction])
+        
+        
+        
+        return deleteFileConfiguration
+    }
 }

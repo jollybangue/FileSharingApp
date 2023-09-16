@@ -24,13 +24,13 @@ class LoginViewController: UIViewController {
     /// Is "prepare for segue necessary in this case?"
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
-        if let myHomeVC = segue.destination as? HomeViewController {
-            
-            // Pass the selected object to the new view controller.
+//        if let myHomeVC = segue.destination as? HomeViewController {
+//
+//            // Pass the selected object to the new view controller.
 //            if let extractedUserName = sender as? String {
 //                myHomeVC.username = extractedUserName
 //            }
-        }
+//        }
     }
     
     /// This function clear the textfields of the Login screen when moving to another screen.
