@@ -140,9 +140,10 @@ extension HomeViewController: UITableViewDelegate {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong with metadata. Error \(myError)")
             }
             guard let fileKind = metadata?.contentType,
-                  let fileSize = metadata?.size,
-                  let fileTimeCreated = metadata?.timeCreated,
-                  let filetimeModified = metadata?.updated
+                  let fileSize = metadata?.size.formatted(),
+                  let fileTimeCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
+                  let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
+                  let fileName = metadata?.name
             else {return}
             let fileDetailsAlert = UIAlertController(title: realtimeFileList[indexPath.row].1, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
@@ -153,10 +154,12 @@ extension HomeViewController: UITableViewDelegate {
             }
             
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { _ in
-                AlertManager.showAlert(myTitle: "", myMessage: "File link copied to clipboard")
+                AlertManager.showAlert(myTitle: fileName, myMessage: "File link copied to clipboard")
             }
             
-            let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive)
+            let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
+                
+            }
             
             let cancelFileAction = UIAlertAction(title: "Cancel", style: .cancel)
             
