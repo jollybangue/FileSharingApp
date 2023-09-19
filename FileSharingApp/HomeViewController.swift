@@ -21,10 +21,10 @@ class HomeViewController: UIViewController {
     private let realtimeDBRef = Database.database().reference()
     private let parentNode = "Files"
     
-    private var fileList: [StorageReference] = [] // Array containing the references (names, paths, links) of the files stored in the Firebase cloud storage.
+    // USELESS: private var fileList: [StorageReference] = [] // Array containing the references (names, paths, links) of the files stored in the Firebase cloud storage.
     // var folderList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
-    private var realtimeFileList: [(String, String)] = [] // Array containing the realtime details of the files (key, name), details stored in the realtime database..
-        
+    private var realtimeFileList: [(String, String)] = [] // Array containing the realtime details of the files (key, name), details stored in the realtime database...
+            
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -53,7 +53,7 @@ class HomeViewController: UIViewController {
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
             guard let fileReferences = result?.items else {return} // Array of file references
             setFileNamesInRealtimeDB(myFileList: fileReferences)
-            fileList = fileReferences ///This line is useless. It is here just for debugging purposes.
+            //fileList = fileReferences ///This line is useless. It is here just for debugging purposes.
         }
         // fileList is EMPTY here (outside the listAll function)
     }
@@ -78,11 +78,13 @@ class HomeViewController: UIViewController {
         }
         // realtimeFileList is EMPTY here (outside the observe() function)
     }
+
     
     @IBAction func didTapUpload(_ sender: UIButton) {
         //print("BUTTON PRESSED - Content of realtimeFileList: \(realtimeFileList)")
         //print("BUTTON PRESSED - Content of FileList: \(fileList)")
         //"realtimeFileList" and "fileList" variables are not empty when we press the button.
+        //print("BUTTON PRESSED - Content of fileMetadata: \(fileMetadata)")
 
     }
     
@@ -126,31 +128,46 @@ extension HomeViewController: UITableViewDataSource {
 }
 
 extension HomeViewController: UITableViewDelegate {
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         tableView.deselectRow(at: indexPath, animated: true)
-        let fileDetailsAlert = UIAlertController(title: realtimeFileList[indexPath.row].1, message: "Files details here...", preferredStyle: .alert)
         
-        let openFileAction = UIAlertAction(title: "Open", style: .default) { _ in
+        let fileRef = myStorageRef.child(realtimeFileList[indexPath.row].1)
+        
+        fileRef.getMetadata { [self] metadata, error in
+            if let myError = error {
+                AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong with metadata. Error \(myError)")
+            }
+            guard let fileKind = metadata?.contentType,
+                  let fileSize = metadata?.size,
+                  let fileTimeCreated = metadata?.timeCreated,
+                  let filetimeModified = metadata?.updated
+            else {return}
+            let fileDetailsAlert = UIAlertController(title: realtimeFileList[indexPath.row].1, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
+            
+            let openFileAction = UIAlertAction(title: "Open", style: .default) { _ in
+            }
+            
+            let downloadFileAction = UIAlertAction(title: "Download", style: .default) { _ in
+            }
+            
+            let shareFileAction = UIAlertAction(title: "Share", style: .default) { _ in
+                AlertManager.showAlert(myTitle: "", myMessage: "File link copied to clipboard")
+            }
+            
+            let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive)
+            
+            let cancelFileAction = UIAlertAction(title: "Cancel", style: .cancel)
+            
+            fileDetailsAlert.addAction(openFileAction)
+            fileDetailsAlert.addAction(downloadFileAction)
+            fileDetailsAlert.addAction(shareFileAction)
+            fileDetailsAlert.addAction(deleteFileAction)
+            fileDetailsAlert.addAction(cancelFileAction)
+            
+            present(fileDetailsAlert, animated: true)
         }
-        
-        let downloadFileAction = UIAlertAction(title: "Download", style: .default) { _ in
-        }
-        
-        let shareFileAction = UIAlertAction(title: "Share", style: .default) { _ in
-            AlertManager.showAlert(myTitle: "", myMessage: "File link copied to clipboard")
-        }
-        
-        let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive)
-        
-        let cancelFileAction = UIAlertAction(title: "Cancel", style: .cancel)
-        
-        fileDetailsAlert.addAction(openFileAction)
-        fileDetailsAlert.addAction(downloadFileAction)
-        fileDetailsAlert.addAction(shareFileAction)
-        fileDetailsAlert.addAction(deleteFileAction)
-        fileDetailsAlert.addAction(cancelFileAction)
-        
-        present(fileDetailsAlert, animated: true)
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
