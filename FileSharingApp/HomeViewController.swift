@@ -7,6 +7,8 @@
 // Description: A native iOS app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication and Firebase Cloud Storage).
 
 import UIKit
+import PhotosUI
+//import FileProviderUI
 import FirebaseAuth
 import FirebaseStorage
 import FirebaseDatabase
@@ -28,6 +30,7 @@ class HomeViewController: UIViewController {
     private var realtimeFileList: [(String, String)] = [] // Array containing the realtime details of the files (key, name), details stored in the realtime database...
             
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         
         homeTableView.dataSource = self
@@ -44,8 +47,10 @@ class HomeViewController: UIViewController {
         print("Message from Home View Controller: The current user is \(userEmail)")
         
         copyDataFromStorageToRealtimeDB() ///Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
+        
         getFileNamesFromRealtimeDB()
     }
+    
     
     /// This function get the list of files stored in the Firebase cloud storage and save it into the Realtime database using the setFileNamesInRealtimeDB() function.
     private func copyDataFromStorageToRealtimeDB() {
@@ -87,19 +92,60 @@ class HomeViewController: UIViewController {
     private func deleteFileFromCloudStorage(nameOfTheFile: String) {
         myStorageRef.child(fileStorageRoot).child(nameOfTheFile).delete { [self] error in
             if let fileDeletionError = error {
-                AlertManager.showAlert(myTitle: "File deletion error", myMessage: "Something went wrong while deleting the file \(nameOfTheFile).\nError: \(fileDeletionError)")
+                AlertManager.showAlert(myTitle: "File deletion error", myMessage: "Something went wrong while deleting the file \"\(nameOfTheFile)\".\nError: \(fileDeletionError)")
             } else {
                 copyDataFromStorageToRealtimeDB() ///Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
                 getFileNamesFromRealtimeDB()
-                AlertManager.showAlert(myTitle: "File deleted", myMessage: "The file \(nameOfTheFile) has been succesfully deleted")
+                AlertManager.showAlert(myTitle: "File deleted", myMessage: "The file \"\(nameOfTheFile)\" has been succesfully deleted from the cloud.")
             }
         }
     }
-
+    
+    
+    ///This function upload a file picked on the phone to the Firebase Cloud Storage
+    private func uploadFile(file: UIImage) {
+        guard let fileInJpeg = file.jpegData(compressionQuality: 1.0) else {
+            print("##### Error while converting the file to JPEG.")
+            return
+        }
+        // Create file metadata including the content type, otherwise, the file will be uploaded as application/octet-stream (no specific extension)
+        let fileMetadata = StorageMetadata()
+        fileMetadata.contentType = "image/jpeg"
+        
+        myStorageRef.child(fileStorageRoot).child("My Uploaded Image.jpg").putData(fileInJpeg, metadata: fileMetadata) { [self] metadata, error in
+            if let uploadError = error {
+                print("##### Failed to upload the file. Error: \(uploadError.localizedDescription)")
+                return
+            }
+            guard let uploadedFilename = metadata?.name else {return}
+            
+            // TODO: I need to implement an upload progress observer here...
+            
+            AlertManager.showAlert(myTitle: "File uploaded", myMessage: "The file \"\(uploadedFilename)\" has been successfully uploaded in the cloud.")
+            copyDataFromStorageToRealtimeDB()
+            getFileNamesFromRealtimeDB()
+        }
+        
+//        myStorageRef.child(fileStorageRoot).child("My Uploaded Image.jpg").putData(fileInJpeg) { [self] metadata, error in
+//        }
+    }
+    
     
     @IBAction func didTapUpload(_ sender: UIButton) {
         
-
+        var mediaPickerConfig = PHPickerConfiguration()
+        mediaPickerConfig.selectionLimit = 1
+        
+        /// Present photo picker view controller that allows user to pick a media (photo or video)
+        let mediaPickerVC = PHPickerViewController(configuration: mediaPickerConfig)
+        
+        // TODO: In the future, the app should be able to upload any kind of file (NOT only photos and videos)
+        // Creating an alert for choosing between actions "Media (Photos or Videos)" and "Other files"
+        //let filePickerVC = UIDocumentPickerViewController(forExporting: .init())
+        
+        mediaPickerVC.delegate = self
+        
+        present(mediaPickerVC, animated: true)
     }
     
     @IBAction func didTapSignOut(_ sender: UIButton) {
@@ -171,7 +217,7 @@ extension HomeViewController: UITableViewDelegate {
             }
             
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { _ in
-                AlertManager.showAlert(myTitle: fileName, myMessage: "File link copied to clipboard")
+                AlertManager.showAlert(myTitle: fileName, myMessage: "File link copied to clipboard.")
             }
             
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
@@ -221,3 +267,35 @@ extension HomeViewController: UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [deleteFileContextualAction])
     }
 }
+
+extension HomeViewController: PHPickerViewControllerDelegate {
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        
+        guard let fileProvider = results.first?.itemProvider else {return}
+        // fileProvider.canLoadObject(ofClass: UIImage.self) This line seems to be useless...
+        /// Instead of UIImage, try UTType or UTTypeMovie for videos
+        /// NS stands for NeXTSTEP
+        fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
+            
+            if let fileError = error {
+                print("##### Error while loading the file. Error: \(fileError.localizedDescription)")
+                return
+            }
+            
+            guard let file = wrappedFile as? UIImage else {
+                print("##### Error: Failed to cast the file as UIImage.")
+                return
+            }
+            
+            DispatchQueue.main.sync {
+                uploadFile(file: file)
+            }
+        }
+        
+        picker.dismiss(animated: true)
+        
+    }
+    
+}
+
