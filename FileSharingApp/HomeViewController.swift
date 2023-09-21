@@ -6,9 +6,16 @@
 //
 // Description: A native iOS app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication and Firebase Cloud Storage).
 
+// Some important notes about iOS "Photos" and "Files" apps of the simulators
+// 1- When we drag and drop files from the computer to the the "Photos" app gallery, the name of the file is changed. The app add a unique random key at the end of the original file name (E.g.: "File 1" in the computer becomes something like "File 1-6CEAC9E8-5385-4E51-B7F2-032128643381")
+// 2- When we drag and drop files from the computer to the the "Files" app folder, the name of the file is unchanged.
+// 3- We cannot edit the name of a file stored the "Photos" app galery
+// 4- We can edit the name of a file stored the "Files" app folders
+// 5- We can save a copy of a file stored the "Photos" app galery, in a folder of the app "Files". Obviously in that case, the copy saved in the "Files" folder can be renamed as much as we want.
+// 6- We can import a photo saved in a "Files" folder in the "Photos" app gallery. In that case, the copy of the file saved in the "Photos" app gallery is automatically renamed with a format like this: "IMG_0003". The next saved file (in the "Photos" app gallery) will be "IMG_0004", ...
+
 import UIKit
 import PhotosUI
-//import FileProviderUI
 import FirebaseAuth
 import FirebaseStorage
 import FirebaseDatabase
@@ -27,7 +34,9 @@ class HomeViewController: UIViewController {
     
     // USELESS: private var fileList: [StorageReference] = [] // Array containing the references (names, paths, links) of the files stored in the Firebase cloud storage.
     // var folderList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
-    private var realtimeFileList: [(String, String)] = [] // Array containing the realtime details of the files (key, name), details stored in the realtime database...
+    
+    /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database...
+    private var realtimeFileList: [(String, String)] = []
             
     override func viewDidLoad() {
         
@@ -103,31 +112,40 @@ class HomeViewController: UIViewController {
     
     
     ///This function upload a file picked on the phone to the Firebase Cloud Storage
-    private func uploadFile(file: UIImage) {
+    private func uploadFile(file: UIImage, fileName: String) {
         guard let fileInJpeg = file.jpegData(compressionQuality: 1.0) else {
-            print("##### Error while converting the file to JPEG.")
+            print("##### Error while converting the chosen file to JPEG.")
             return
         }
-        // Create file metadata including the content type, otherwise, the file will be uploaded as application/octet-stream (no specific extension)
+        
+        /// A file metadata containing information about the content type, otherwise, the file will be uploaded as application/octet-stream (no specific extension)
         let fileMetadata = StorageMetadata()
         fileMetadata.contentType = "image/jpeg"
         
-        myStorageRef.child(fileStorageRoot).child("My Uploaded Image.jpg").putData(fileInJpeg, metadata: fileMetadata) { [self] metadata, error in
+        myStorageRef.child(fileStorageRoot).child("\(fileName).jpg").putData(fileInJpeg, metadata: fileMetadata) { [self] metadata, error in
             if let uploadError = error {
                 print("##### Failed to upload the file. Error: \(uploadError.localizedDescription)")
                 return
             }
-            guard let uploadedFilename = metadata?.name else {return}
+            guard let uploadedFilename = metadata?.name else {
+                print("##### Error while getting the name of the uploaded file.")
+                return
+            }
             
             // TODO: I need to implement an upload progress observer here...
             
+            // TODO: I should add some code to avoid uploading duplicate files (check if the names, sizes and types of the files match...), or uploading the same file again and again.
+            
             AlertManager.showAlert(myTitle: "File uploaded", myMessage: "The file \"\(uploadedFilename)\" has been successfully uploaded in the cloud.")
+            
+            print("### Name of the picked local file (fileName): \(fileName)")
+            print("### Name of the file stored in the cloud (uploadedFilename): \(uploadedFilename)")
+            
             copyDataFromStorageToRealtimeDB()
+            
             getFileNamesFromRealtimeDB()
+            
         }
-        
-//        myStorageRef.child(fileStorageRoot).child("My Uploaded Image.jpg").putData(fileInJpeg) { [self] metadata, error in
-//        }
     }
     
     
@@ -135,8 +153,8 @@ class HomeViewController: UIViewController {
         
         var mediaPickerConfig = PHPickerConfiguration()
         mediaPickerConfig.selectionLimit = 1
-        
-        /// Present photo picker view controller that allows user to pick a media (photo or video)
+                
+        /// Present a photo picker view controller that allows user to pick a media (photo or video)
         let mediaPickerVC = PHPickerViewController(configuration: mediaPickerConfig)
         
         // TODO: In the future, the app should be able to upload any kind of file (NOT only photos and videos)
@@ -193,12 +211,13 @@ extension HomeViewController: UITableViewDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let fileSelected: String = realtimeFileList[indexPath.row].1
+        let fileSelectedInHomeTableView: String = realtimeFileList[indexPath.row].1
         
         // TODO: In the future, for optimization, I should implement one function to get all the metadata (including the list of files) from Firebase cloud storage and save them in the Realtime database.
         /// And all the information needed by the application should be get from the Realtime database.
         /// It is better to proceed like that because is not possible to access informations like metadata or file list outside the Cloud Storage functions getMetadata and listAll.
-        myStorageRef.child(fileStorageRoot).child(fileSelected).getMetadata { [self] metadata, error in
+        
+        myStorageRef.child(fileStorageRoot).child(fileSelectedInHomeTableView).getMetadata { [self] metadata, error in
             if let myError = error {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong with metadata. Error \(myError)")
             }
@@ -208,7 +227,7 @@ extension HomeViewController: UITableViewDelegate {
                   let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
                   let fileName = metadata?.name
             else {return}
-            let fileDetailsAlert = UIAlertController(title: fileSelected, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
+            let fileDetailsAlert = UIAlertController(title: fileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
             let openFileAction = UIAlertAction(title: "Open", style: .default) { _ in
             }
@@ -222,10 +241,11 @@ extension HomeViewController: UITableViewDelegate {
             
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 
-                let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(fileSelected) from the cloud?", preferredStyle: .alert)
+                let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(fileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
                 
                 let deleFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
-                    deleteFileFromCloudStorage(nameOfTheFile: fileSelected) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
+                    deleteFileFromCloudStorage(nameOfTheFile: fileSelectedInHomeTableView) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
+                    
                     // TODO: For future improvement, instead of permanently delete the files from the Firebase cloud storage, the files should just be moved to a trash or recycle bin.
                 }
                 
@@ -253,6 +273,7 @@ extension HomeViewController: UITableViewDelegate {
         
         let deleFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
             deleteFileFromCloudStorage(nameOfTheFile: fileToBeDeleted) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
+            
             // TODO: For future improvement, instead of permanently delete the files from the Firebase cloud storage, the files should just be moved to a trash or recycle bin.
         }
         
@@ -272,30 +293,36 @@ extension HomeViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         
-        guard let fileProvider = results.first?.itemProvider else {return}
+        guard let fileProvider = results.first?.itemProvider else {return} // Pickup just the first object.
         // fileProvider.canLoadObject(ofClass: UIImage.self) This line seems to be useless...
         /// Instead of UIImage, try UTType or UTTypeMovie for videos
         /// NS stands for NeXTSTEP
+        
+        /// The name of file the user picked
+        guard let pickedFileName = results.first?.itemProvider.suggestedName else {
+            print("##### Error: Unable to get the name of the picked file...")
+            return
+        }
+        
+        ///Here we load ONLY the first object
         fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
             
             if let fileError = error {
-                print("##### Error while loading the file. Error: \(fileError.localizedDescription)")
+                print("##### Error while loading the file. It seems that the picked file is not an image/photo. Error: \(fileError.localizedDescription)")
                 return
             }
             
-            guard let file = wrappedFile as? UIImage else {
+            guard let pickedFile = wrappedFile as? UIImage else {
                 print("##### Error: Failed to cast the file as UIImage.")
                 return
             }
             
             DispatchQueue.main.sync {
-                uploadFile(file: file)
+                uploadFile(file: pickedFile, fileName: pickedFileName)
             }
         }
         
         picker.dismiss(animated: true)
-        
     }
-    
 }
 
