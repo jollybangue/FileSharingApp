@@ -14,6 +14,8 @@
 // 5- We can save a copy of a file stored the "Photos" app galery, in a folder of the app "Files". Obviously in that case, the copy saved in the "Files" folder can be renamed as much as we want.
 // 6- We can import a photo saved in a "Files" folder in the "Photos" app gallery. In that case, the copy of the file saved in the "Photos" app gallery is automatically renamed with a format like this: "IMG_0003". The next saved file (in the "Photos" app gallery) will be "IMG_0004", ...
 
+// TODO: Change printed messages to alert message for a better user experience (UX).
+
 import UIKit
 import PhotosUI
 import FirebaseAuth
@@ -110,9 +112,9 @@ class HomeViewController: UIViewController {
         }
     }
     
-    
     ///This function upload a file picked on the phone to the Firebase Cloud Storage
-    private func uploadFile(file: UIImage, fileName: String) {
+    private func uploadFileInCloudStorage(file: UIImage, fileName: String) {
+        
         guard let fileInJpeg = file.jpegData(compressionQuality: 1.0) else {
             print("##### Error while converting the chosen file to JPEG.")
             return
@@ -132,7 +134,7 @@ class HomeViewController: UIViewController {
                 return
             }
             
-            // TODO: I need to implement an upload progress observer here...
+            // TODO: I need to implement an upload progress observer here... Using UIProgressView...
             
             // TODO: I should add some code to avoid uploading duplicate files (check if the names, sizes and types of the files match...), or uploading the same file again and again.
             
@@ -207,44 +209,74 @@ extension HomeViewController: UITableViewDataSource {
 
 extension HomeViewController: UITableViewDelegate {
     
+    /// Actions taken when the user tap on a file
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let fileSelectedInHomeTableView: String = realtimeFileList[indexPath.row].1
+        let nameOfTheFileSelectedInHomeTableView: String = realtimeFileList[indexPath.row].1
         
         // TODO: In the future, for optimization, I should implement one function to get all the metadata (including the list of files) from Firebase cloud storage and save them in the Realtime database.
         /// And all the information needed by the application should be get from the Realtime database.
         /// It is better to proceed like that because is not possible to access informations like metadata or file list outside the Cloud Storage functions getMetadata and listAll.
         
-        myStorageRef.child(fileStorageRoot).child(fileSelectedInHomeTableView).getMetadata { [self] metadata, error in
+        /// Getting metadata of a file stored in Firebase cloud storage based on the name of the same file in the local device. I tried to make a separate function to make the code more readable but it didn't work. The metadata are not available or accessible outside the Firebase native function below "getMetadata".
+        myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView).getMetadata { [self] metadata, error in
+            
             if let myError = error {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong with metadata. Error \(myError)")
             }
+            
             guard let fileKind = metadata?.contentType,
                   let fileSize = metadata?.size.formatted(),
                   let fileTimeCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
                   let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
-                  let fileName = metadata?.name
-            else {return}
-            let fileDetailsAlert = UIAlertController(title: fileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
+                  let fileName = metadata?.name,
+                  let fileURL = metadata?.path
+            else {
+                AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the file metadata.")
+                return
+            }
+            
+            let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
             let openFileAction = UIAlertAction(title: "Open", style: .default) { _ in
+                // Perform segue showImage. Instead of showing the downloaded imgage in an image view, I should also try a Web View or a WebKit View
+                // So I will be able to open image files and many other files like PDFs, ...
             }
             
             let downloadFileAction = UIAlertAction(title: "Download", style: .default) { _ in
+                // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
             }
             
-            let shareFileAction = UIAlertAction(title: "Share", style: .default) { _ in
+            let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
+                // Generate and download the link of the selected file and copy that link to the iPhone clipboard
+                
+                myStorageRef.child(fileStorageRoot).child(fileName).downloadURL { maybeUrl, maybeError in
+                    if let error = maybeError {
+                        AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the URL of the selected file.")
+                        print("##### Error: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let url = maybeUrl else {
+                        AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong while unwrapping the URL.")
+                        return
+                    }
+                    UIPasteboard.general.url = url
+                    print("File link to share: \(url)")
+                }
+                
                 AlertManager.showAlert(myTitle: fileName, myMessage: "File link copied to clipboard.")
+                
             }
             
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
-                
-                let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(fileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
+                // Permanently delete from the Firebase Cloud Storage a selected file.
+                let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
                 
                 let deleFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
-                    deleteFileFromCloudStorage(nameOfTheFile: fileSelectedInHomeTableView) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
+                    deleteFileFromCloudStorage(nameOfTheFile: nameOfTheFileSelectedInHomeTableView) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
                     
                     // TODO: For future improvement, instead of permanently delete the files from the Firebase cloud storage, the files should just be moved to a trash or recycle bin.
                 }
@@ -265,6 +297,7 @@ extension HomeViewController: UITableViewDelegate {
         }
     }
     
+    /// Implementing a swipe action for deleting a selected file
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let fileToBeDeleted: String = realtimeFileList[indexPath.row].1
@@ -308,6 +341,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
             
             if let fileError = error {
+                AlertManager.showAlert(myTitle: "Error while loading the file", myMessage: "It seems that the file you selected is not an image/photo.")
                 print("##### Error while loading the file. It seems that the picked file is not an image/photo. Error: \(fileError.localizedDescription)")
                 return
             }
@@ -318,7 +352,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
             }
             
             DispatchQueue.main.sync {
-                uploadFile(file: pickedFile, fileName: pickedFileName)
+                uploadFileInCloudStorage(file: pickedFile, fileName: pickedFileName)
             }
         }
         
