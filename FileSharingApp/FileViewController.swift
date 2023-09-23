@@ -15,7 +15,7 @@ class FileViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
     
-    @IBOutlet weak var fileNameLabel: UILabel!
+    //@IBOutlet weak var fileNameLabel: UILabel!
     
     var fileReference: StorageReference?
         
@@ -25,8 +25,8 @@ class FileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        fileNameLabel.text = selectedFileName
+        
+        navigationItem.title = selectedFileName
         
         guard let fileRef = fileReference else {
             AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the reference of the file to display.")
