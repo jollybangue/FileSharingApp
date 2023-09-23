@@ -62,6 +62,17 @@ class HomeViewController: UIViewController {
         getFileNamesFromRealtimeDB()
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        if let fileVC = segue.destination as? FileViewController {
+            // Pass the selected object to the new view controller.
+            
+            if let senderTuple = sender as? (String, StorageReference) {
+                fileVC.selectedFileName = senderTuple.0
+                fileVC.fileReference = senderTuple.1
+            }
+        }
+    }
     
     /// This function get the list of files stored in the Firebase cloud storage and save it into the Realtime database using the setFileNamesInRealtimeDB() function.
     private func copyDataFromStorageToRealtimeDB() {
@@ -113,9 +124,9 @@ class HomeViewController: UIViewController {
     }
     
     ///This function upload a file picked on the phone to the Firebase Cloud Storage
-    private func uploadFileInCloudStorage(file: UIImage, fileName: String) {
+    private func uploadFileInCloudStorage(uIImageFile: UIImage, fileName: String) {
         
-        guard let fileInJpeg = file.jpegData(compressionQuality: 1.0) else {
+        guard let fileInJpeg = uIImageFile.jpegData(compressionQuality: 1.0) else {
             print("##### Error while converting the chosen file to JPEG.")
             return
         }
@@ -231,8 +242,7 @@ extension HomeViewController: UITableViewDelegate {
                   let fileSize = metadata?.size.formatted(),
                   let fileTimeCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
                   let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
-                  let fileName = metadata?.name,
-                  let fileURL = metadata?.path
+                  let uploadedFileName = metadata?.name
             else {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the file metadata.")
                 return
@@ -240,19 +250,28 @@ extension HomeViewController: UITableViewDelegate {
             
             let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
-            let openFileAction = UIAlertAction(title: "Open", style: .default) { _ in
-                // Perform segue showImage. Instead of showing the downloaded imgage in an image view, I should also try a Web View or a WebKit View
-                // So I will be able to open image files and many other files like PDFs, ...
+            /// Action #1
+            let openFileAction = UIAlertAction(title: "Open", style: .default) { [self] _ in
+                // Perform segue "showImage". TODO: In the future, instead of showing the downloaded imgage in an image view, I should also try a Web View or a WebKit View. So I will be able to open image files and many other files like PDFs, ...
+                
+                let fileToOpenRef = myStorageRef.child(fileStorageRoot).child(uploadedFileName)
+                
+                self.performSegue(withIdentifier: "showImage", sender: (uploadedFileName, fileToOpenRef))
+                
+                
+                
             }
             
+            /// Action #2
             let downloadFileAction = UIAlertAction(title: "Download", style: .default) { _ in
                 // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
             }
             
+            /// Action #3
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
                 
-                myStorageRef.child(fileStorageRoot).child(fileName).downloadURL { maybeUrl, maybeError in
+                myStorageRef.child(fileStorageRoot).child(uploadedFileName).downloadURL { maybeUrl, maybeError in
                     if let error = maybeError {
                         AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the URL of the selected file.")
                         print("##### Error: \(error.localizedDescription)")
@@ -267,10 +286,11 @@ extension HomeViewController: UITableViewDelegate {
                     print("File link to share: \(url)")
                 }
                 
-                AlertManager.showAlert(myTitle: fileName, myMessage: "File link copied to clipboard.")
+                AlertManager.showAlert(myTitle: uploadedFileName, myMessage: "File link copied to clipboard.")
                 
             }
             
+            /// Action #4
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 // Permanently delete from the Firebase Cloud Storage a selected file.
                 let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
@@ -291,7 +311,7 @@ extension HomeViewController: UITableViewDelegate {
             fileDetailsAlert.addAction(downloadFileAction)
             fileDetailsAlert.addAction(shareFileAction)
             fileDetailsAlert.addAction(deleteFileAction)
-            fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) /// Action #5
             
             present(fileDetailsAlert, animated: true)
         }
@@ -352,7 +372,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
             }
             
             DispatchQueue.main.sync {
-                uploadFileInCloudStorage(file: pickedFile, fileName: pickedFileName)
+                uploadFileInCloudStorage(uIImageFile: pickedFile, fileName: pickedFileName)
             }
         }
         

@@ -6,26 +6,50 @@
 //
 // TODO: In the future, instead of an ImageView, I should implement here a Web View or a WebKit View, to be able to open not only image (Jpeg, PNG, BMP, ...), but also PDF and many other kind of files.
 
+// TODO: In the future, try to use FirebaseUI...
+
 import UIKit
+import FirebaseStorage
 
 class FileViewController: UIViewController {
 
+    @IBOutlet weak var imageView: UIImageView!
+    
+    @IBOutlet weak var fileNameLabel: UILabel!
+    
+    var fileReference: StorageReference?
+        
+    var selectedFileName: String = ""
+    
+    var imageToDisplay = UIImage()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
-        // Another test comment...
+        fileNameLabel.text = selectedFileName
+        
+        guard let fileRef = fileReference else {
+            AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the reference of the file to display.")
+            return
+        }
+        
+        fileRef.getData(maxSize: (10 * 1024 * 1024)) { [self] maybeData, maybeError in
+            
+            if let error = maybeError {
+                AlertManager.showAlert(myTitle: "Error", myMessage: "There was an error while opening the selected file.")
+                print("Error details: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let downloadedFileData = maybeData else {
+                AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong while unwrapping the downloaded file data...")
+                return
+            }
+            
+            imageView.image = UIImage(data: downloadedFileData)
+        }
+        
+        
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
