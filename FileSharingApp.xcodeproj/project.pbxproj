@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		35DAA24139476FA88B622B9D /* Pods_FileSharingApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1012ECD605220AE28F8C0AB0 /* Pods_FileSharingApp.framework */; };
+		E020CCB12AC0CB13005A5B48 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E020CCB02AC0CB13005A5B48 /* WebViewController.swift */; };
 		E06CFF8A2AB37F7E00875D0E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */; };
 		E0B9A6522A9CFB7E003E39F2 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */; };
 		E0B9A6542A9CFC80003E39F2 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */; };
@@ -25,6 +26,7 @@
 		1012ECD605220AE28F8C0AB0 /* Pods_FileSharingApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FileSharingApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BA87D4301779F12B2F93CB3 /* Pods-FileSharingApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileSharingApp.release.xcconfig"; path = "Target Support Files/Pods-FileSharingApp/Pods-FileSharingApp.release.xcconfig"; sourceTree = "<group>"; };
 		5AC7FD398398B8319F1345A6 /* Pods-FileSharingApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FileSharingApp.debug.xcconfig"; path = "Target Support Files/Pods-FileSharingApp/Pods-FileSharingApp.debug.xcconfig"; sourceTree = "<group>"; };
+		E020CCB02AC0CB13005A5B48 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 				E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */,
 				E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */,
 				E0B9A6572A9CFE6A003E39F2 /* FileViewController.swift */,
+				E020CCB02AC0CB13005A5B48 /* WebViewController.swift */,
 				E0DB8EBB2A9C1F0C005B1E73 /* Main.storyboard */,
 				E0DB8EBE2A9C1F0C005B1E73 /* Assets.xcassets */,
 				E0DB8EC02A9C1F0C005B1E73 /* LaunchScreen.storyboard */,
@@ -229,6 +232,7 @@
 				E0B9A6522A9CFB7E003E39F2 /* RegisterViewController.swift in Sources */,
 				E0B9A6542A9CFC80003E39F2 /* HomeViewController.swift in Sources */,
 				E0B9A6582A9CFE6A003E39F2 /* FileViewController.swift in Sources */,
+				E020CCB12AC0CB13005A5B48 /* WebViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

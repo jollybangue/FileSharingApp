@@ -72,6 +72,15 @@ class HomeViewController: UIViewController {
                 fileVC.fileReference = senderTuple.1
             }
         }
+        
+        if let webVC = segue.destination as? WebViewController {
+            // Pass the selected object to the new view controller.
+            
+            if let senderTuple = sender as? (String, StorageReference) {
+                webVC.selectedFileName = senderTuple.0
+                webVC.fileReference = senderTuple.1
+            }
+        }
     }
     
     /// This function get the list of files stored in the Firebase cloud storage and save it into the Realtime database using the setFileNamesInRealtimeDB() function.
@@ -248,18 +257,19 @@ extension HomeViewController: UITableViewDelegate {
                 return
             }
             
+            let fileToOpenRef = myStorageRef.child(fileStorageRoot).child(uploadedFileName)
+            
             let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
             /// Action #1
             let openFileAction = UIAlertAction(title: "Open", style: .default) { [self] _ in
                 // Perform segue "showImage". TODO: In the future, instead of showing the downloaded imgage in an image view, I should also try a Web View or a WebKit View. So I will be able to open image files and many other files like PDFs, ...
-                
-                let fileToOpenRef = myStorageRef.child(fileStorageRoot).child(uploadedFileName)
-                
                 self.performSegue(withIdentifier: "showImage", sender: (uploadedFileName, fileToOpenRef))
-                
-                
-                
+            }
+            
+            /// Action #1BIS
+            let openInWebViewAction = UIAlertAction(title: "Open in Web View", style: .default) { _ in
+                self.performSegue(withIdentifier: "showWebView", sender: (uploadedFileName, fileToOpenRef))
             }
             
             /// Action #2
@@ -308,6 +318,7 @@ extension HomeViewController: UITableViewDelegate {
             }
                         
             fileDetailsAlert.addAction(openFileAction)
+            fileDetailsAlert.addAction(openInWebViewAction)
             fileDetailsAlert.addAction(downloadFileAction)
             fileDetailsAlert.addAction(shareFileAction)
             fileDetailsAlert.addAction(deleteFileAction)

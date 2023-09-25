@@ -15,14 +15,10 @@ class FileViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
     
-    //@IBOutlet weak var fileNameLabel: UILabel!
-    
     var fileReference: StorageReference?
         
     var selectedFileName: String = ""
-    
-    var imageToDisplay = UIImage()
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
