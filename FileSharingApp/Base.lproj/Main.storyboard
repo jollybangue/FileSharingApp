@@ -173,11 +173,14 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <stackView opaque="NO" contentMode="scaleToFill" spacing="100" translatesAutoresizingMaskIntoConstraints="NO" id="qPp-PS-7Ax">
-                                <rect key="frame" x="59.666666666666657" y="787.66666666666663" width="274" height="34.333333333333371"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="qPp-PS-7Ax">
+                                <rect key="frame" x="18" y="787.66666666666663" width="357" height="34.333333333333371"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BFB-Xn-oq2">
                                         <rect key="frame" x="0.0" y="0.0" width="87" height="34.333333333333336"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="87" id="Uqc-9d-UrK"/>
+                                        </constraints>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Sign out">
                                             <color key="baseForegroundColor" systemColor="systemRedColor"/>
@@ -186,8 +189,17 @@
                                             <action selector="didTapSignOut:" destination="DQg-Ij-k0d" eventType="touchUpInside" id="dZk-2P-l23"/>
                                         </connections>
                                     </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vhc-cm-q7a">
+                                        <rect key="frame" x="97" y="0.0" width="163" height="34.333333333333336"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="10"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4cA-gK-Aul">
-                                        <rect key="frame" x="187" y="0.0" width="87" height="34.333333333333336"/>
+                                        <rect key="frame" x="270" y="0.0" width="87" height="34.333333333333336"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="87" id="J2k-gE-buY"/>
+                                        </constraints>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Upload"/>
                                         <connections>
@@ -195,6 +207,16 @@
                                         </connections>
                                     </button>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstItem="BFB-Xn-oq2" firstAttribute="leading" secondItem="qPp-PS-7Ax" secondAttribute="leading" id="57R-5E-Hy0"/>
+                                    <constraint firstAttribute="bottom" secondItem="vhc-cm-q7a" secondAttribute="bottom" id="7LO-l2-qiU"/>
+                                    <constraint firstItem="BFB-Xn-oq2" firstAttribute="top" secondItem="qPp-PS-7Ax" secondAttribute="top" id="Bfo-8x-bQa"/>
+                                    <constraint firstAttribute="bottom" secondItem="BFB-Xn-oq2" secondAttribute="bottom" id="Vlg-fh-Lez"/>
+                                    <constraint firstAttribute="bottom" secondItem="4cA-gK-Aul" secondAttribute="bottom" id="XPP-NS-8hN"/>
+                                    <constraint firstItem="vhc-cm-q7a" firstAttribute="top" secondItem="qPp-PS-7Ax" secondAttribute="top" id="Z7I-AK-Xso"/>
+                                    <constraint firstItem="4cA-gK-Aul" firstAttribute="top" secondItem="qPp-PS-7Ax" secondAttribute="top" id="ePa-99-lz5"/>
+                                    <constraint firstAttribute="trailing" secondItem="4cA-gK-Aul" secondAttribute="trailing" id="uve-0m-Fm8"/>
+                                </constraints>
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Jp7-Qh-w9o"/>
@@ -202,15 +224,18 @@
                         <constraints>
                             <constraint firstItem="Jp7-Qh-w9o" firstAttribute="bottom" secondItem="qPp-PS-7Ax" secondAttribute="bottom" constant="20" id="DAd-yQ-xJA"/>
                             <constraint firstItem="740-cp-rmJ" firstAttribute="leading" secondItem="Jp7-Qh-w9o" secondAttribute="leading" id="GBu-ZG-sXq"/>
+                            <constraint firstItem="qPp-PS-7Ax" firstAttribute="leading" secondItem="Jp7-Qh-w9o" secondAttribute="leading" constant="18" id="VNJ-7I-loE"/>
                             <constraint firstItem="qPp-PS-7Ax" firstAttribute="top" secondItem="740-cp-rmJ" secondAttribute="bottom" constant="10" id="X0X-Uu-2nb"/>
                             <constraint firstItem="740-cp-rmJ" firstAttribute="trailing" secondItem="Jp7-Qh-w9o" secondAttribute="trailing" id="bOR-JO-6pC"/>
                             <constraint firstItem="740-cp-rmJ" firstAttribute="top" secondItem="Jp7-Qh-w9o" secondAttribute="top" id="bwD-Zh-lK3"/>
                             <constraint firstItem="qPp-PS-7Ax" firstAttribute="centerX" secondItem="lml-oK-Aka" secondAttribute="centerX" id="f03-xW-bOn"/>
+                            <constraint firstItem="Jp7-Qh-w9o" firstAttribute="trailing" secondItem="qPp-PS-7Ax" secondAttribute="trailing" constant="18" id="oOf-Q6-EVr"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Files in the cloud" id="XAs-vt-mdO"/>
                     <connections>
                         <outlet property="homeTableView" destination="740-cp-rmJ" id="mOc-q5-tDy"/>
+                        <outlet property="userEmailLabel" destination="vhc-cm-q7a" id="uFG-N0-viH"/>
                         <segue destination="BYZ-38-t0r" kind="show" identifier="homeToLogin" id="8sn-f3-XdF"/>
                         <segue destination="iEf-02-Wb4" kind="show" identifier="showImage" id="hYg-Cj-UhF"/>
                         <segue destination="qrR-7f-UvG" kind="show" identifier="showWebView" id="tFP-WH-VFg"/>

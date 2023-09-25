@@ -14,7 +14,13 @@
 // 5- We can save a copy of a file stored the "Photos" app galery, in a folder of the app "Files". Obviously in that case, the copy saved in the "Files" folder can be renamed as much as we want.
 // 6- We can import a photo saved in a "Files" folder in the "Photos" app gallery. In that case, the copy of the file saved in the "Photos" app gallery is automatically renamed with a format like this: "IMG_0003". The next saved file (in the "Photos" app gallery) will be "IMG_0004", ...
 
-// TODO: Change printed messages to alert message for a better user experience (UX).
+// TODO: Change printed messages to alert message for a better user experience (UX)...
+
+// TODO: Improve the "Upload" function, allowing the app to upload any kind of file (not only images).
+
+// TODO: Implement the "Download" function.
+
+// TODO: Improve the "Share file" function.
 
 import UIKit
 import PhotosUI
@@ -27,6 +33,8 @@ class HomeViewController: UIViewController {
     // TODO: Later, I can add a label in Home screen to show the email of the currently logged in user and set the text with the value of userEmail...
     
     @IBOutlet weak var homeTableView: UITableView!
+    
+    @IBOutlet weak var userEmailLabel: UILabel!
     
     private let myStorageRef = Storage.storage().reference()    /// Firebase Cloud Storage refence
     private let fileStorageRoot = "FileSharingApp" /// Root of the project data in the Firebase Cloud Storage
@@ -55,6 +63,7 @@ class HomeViewController: UIViewController {
         // The alerts are directly triggered from Register or Login view controllers.
         
         guard let userEmail = Auth.auth().currentUser?.email else {return}
+        userEmailLabel.text = userEmail
         print("Message from Home View Controller: The current user is \(userEmail)")
         
         copyDataFromStorageToRealtimeDB() ///Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
@@ -63,19 +72,21 @@ class HomeViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
+        
+        // Get the view controller FileViewController using segue.destination.
         if let fileVC = segue.destination as? FileViewController {
-            // Pass the selected object to the new view controller.
             
+            // Pass the elements of the selected object (tuple (String, Storage reference)) to the new view controller FileViewController.
             if let senderTuple = sender as? (String, StorageReference) {
                 fileVC.selectedFileName = senderTuple.0
                 fileVC.fileReference = senderTuple.1
             }
         }
         
+        // Pass the elements of the selected object (tuple (String, Storage reference)) to the new view controller WebViewController.
         if let webVC = segue.destination as? WebViewController {
-            // Pass the selected object to the new view controller.
             
+            // Pass the selected object to the new view controller.
             if let senderTuple = sender as? (String, StorageReference) {
                 webVC.selectedFileName = senderTuple.0
                 webVC.fileReference = senderTuple.1
@@ -87,7 +98,8 @@ class HomeViewController: UIViewController {
     private func copyDataFromStorageToRealtimeDB() {
         myStorageRef.child(fileStorageRoot).listAll { [self] result, error in
             if let unWrappedError = error {
-                print("The error is \(unWrappedError)")
+                AlertManager.showAlert(myTitle: "Error", myMessage: "Error while fetching the list of elements stored in Firebase Cloud Storage.")
+                print("Error details: \(unWrappedError)")
             }
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
             guard let fileReferences = result?.items else {return} // Array of file references
@@ -136,6 +148,7 @@ class HomeViewController: UIViewController {
     private func uploadFileInCloudStorage(uIImageFile: UIImage, fileName: String) {
         
         guard let fileInJpeg = uIImageFile.jpegData(compressionQuality: 1.0) else {
+            AlertManager.showAlert(myTitle: "Error", myMessage: "Error while converting the chosen file to JPEG")
             print("##### Error while converting the chosen file to JPEG.")
             return
         }
@@ -146,10 +159,12 @@ class HomeViewController: UIViewController {
         
         myStorageRef.child(fileStorageRoot).child("\(fileName).jpg").putData(fileInJpeg, metadata: fileMetadata) { [self] metadata, error in
             if let uploadError = error {
+                AlertManager.showAlert(myTitle: "Uploading Error", myMessage: "Failed to upload the file")
                 print("##### Failed to upload the file. Error: \(uploadError.localizedDescription)")
                 return
             }
             guard let uploadedFilename = metadata?.name else {
+                AlertManager.showAlert(myTitle: "Error", myMessage: "Error while getting the name of the uploaded file.")
                 print("##### Error while getting the name of the uploaded file.")
                 return
             }
@@ -251,7 +266,8 @@ extension HomeViewController: UITableViewDelegate {
                   let fileSize = metadata?.size.formatted(),
                   let fileTimeCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
                   let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
-                  let uploadedFileName = metadata?.name
+                  let uploadedFileName = metadata?.name,
+                  let fileContentType = metadata?.contentType
             else {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the file metadata.")
                 return
@@ -262,13 +278,19 @@ extension HomeViewController: UITableViewDelegate {
             let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
             /// Action #1
-            let openFileAction = UIAlertAction(title: "Open", style: .default) { [self] _ in
+            let openImageAction = UIAlertAction(title: "Open in Image View", style: .default) { [self] _ in
+                
+                if (fileContentType != "image/jpeg") && (fileContentType != "image/png") {
+                    AlertManager.showAlert(myTitle: "Error", myMessage: "The file you selected is not an image. Only image files can be loaded in Image View.")
+                    return
+                }
+                
                 // Perform segue "showImage". TODO: In the future, instead of showing the downloaded imgage in an image view, I should also try a Web View or a WebKit View. So I will be able to open image files and many other files like PDFs, ...
                 self.performSegue(withIdentifier: "showImage", sender: (uploadedFileName, fileToOpenRef))
             }
             
             /// Action #1BIS
-            let openInWebViewAction = UIAlertAction(title: "Open in Web View", style: .default) { _ in
+            let openInWebKitViewAction = UIAlertAction(title: "Open in WebKit View", style: .default) { _ in
                 self.performSegue(withIdentifier: "showWebView", sender: (uploadedFileName, fileToOpenRef))
             }
             
@@ -283,16 +305,17 @@ extension HomeViewController: UITableViewDelegate {
                 
                 myStorageRef.child(fileStorageRoot).child(uploadedFileName).downloadURL { maybeUrl, maybeError in
                     if let error = maybeError {
-                        AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the URL of the selected file.")
-                        print("##### Error: \(error.localizedDescription)")
+                        AlertManager.showAlert(myTitle: "Download Error", myMessage: "Unable to get the URL of the selected file.")
+                        print("##### Error details: \(error.localizedDescription)")
                         return
                     }
                     
                     guard let url = maybeUrl else {
                         AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong while unwrapping the URL.")
+                        print("##### Error while unwrapping the URL.")
                         return
                     }
-                    UIPasteboard.general.url = url
+                    UIPasteboard.general.url = url // Copying the downloaded URL into the iPhone clipboard.
                     print("File link to share: \(url)")
                 }
                 
@@ -317,8 +340,8 @@ extension HomeViewController: UITableViewDelegate {
                 present(deleteConfirmationAlert, animated: true)
             }
                         
-            fileDetailsAlert.addAction(openFileAction)
-            fileDetailsAlert.addAction(openInWebViewAction)
+            fileDetailsAlert.addAction(openImageAction)
+            fileDetailsAlert.addAction(openInWebKitViewAction)
             fileDetailsAlert.addAction(downloadFileAction)
             fileDetailsAlert.addAction(shareFileAction)
             fileDetailsAlert.addAction(deleteFileAction)
@@ -364,6 +387,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         
         /// The name of file the user picked
         guard let pickedFileName = results.first?.itemProvider.suggestedName else {
+            AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the name of the picked file.")
             print("##### Error: Unable to get the name of the picked file...")
             return
         }
@@ -378,6 +402,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
             }
             
             guard let pickedFile = wrappedFile as? UIImage else {
+                AlertManager.showAlert(myTitle: "Error", myMessage: "Error: Failed to cast the file as UIImage.")
                 print("##### Error: Failed to cast the file as UIImage.")
                 return
             }

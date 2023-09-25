@@ -46,7 +46,7 @@ class WebViewController: UIViewController {
             
             myWebKitView.load(URLRequest(url: myURL))
             
-            print("File link loaded in both web views: \(myURL)")
+            print("File link loaded in WebKit View: \(myURL)")
         }
     }
 }
