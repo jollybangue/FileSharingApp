@@ -12,7 +12,7 @@
 		E06CFF8A2AB37F7E00875D0E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */; };
 		E0B9A6522A9CFB7E003E39F2 /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */; };
 		E0B9A6542A9CFC80003E39F2 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */; };
-		E0B9A6582A9CFE6A003E39F2 /* FileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6572A9CFE6A003E39F2 /* FileViewController.swift */; };
+		E0B9A6582A9CFE6A003E39F2 /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B9A6572A9CFE6A003E39F2 /* ImageViewController.swift */; };
 		E0D32C9C2AA62ECD00824B45 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */; };
 		E0DB8EB62A9C1F0C005B1E73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DB8EB52A9C1F0C005B1E73 /* AppDelegate.swift */; };
 		E0DB8EB82A9C1F0C005B1E73 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DB8EB72A9C1F0C005B1E73 /* SceneDelegate.swift */; };
@@ -30,7 +30,7 @@
 		E06CFF892AB37F7E00875D0E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
-		E0B9A6572A9CFE6A003E39F2 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
+		E0B9A6572A9CFE6A003E39F2 /* ImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		E0D32C9B2AA62ECD00824B45 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		E0DB8EB22A9C1F0C005B1E73 /* FileSharingApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FileSharingApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0DB8EB52A9C1F0C005B1E73 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -98,7 +98,7 @@
 				E0DB8EB92A9C1F0C005B1E73 /* LoginViewController.swift */,
 				E0B9A6512A9CFB7E003E39F2 /* RegisterViewController.swift */,
 				E0B9A6532A9CFC80003E39F2 /* HomeViewController.swift */,
-				E0B9A6572A9CFE6A003E39F2 /* FileViewController.swift */,
+				E0B9A6572A9CFE6A003E39F2 /* ImageViewController.swift */,
 				E020CCB02AC0CB13005A5B48 /* WebViewController.swift */,
 				E0DB8EBB2A9C1F0C005B1E73 /* Main.storyboard */,
 				E0DB8EBE2A9C1F0C005B1E73 /* Assets.xcassets */,
@@ -231,7 +231,7 @@
 				E0DB8EB82A9C1F0C005B1E73 /* SceneDelegate.swift in Sources */,
 				E0B9A6522A9CFB7E003E39F2 /* RegisterViewController.swift in Sources */,
 				E0B9A6542A9CFC80003E39F2 /* HomeViewController.swift in Sources */,
-				E0B9A6582A9CFE6A003E39F2 /* FileViewController.swift in Sources */,
+				E0B9A6582A9CFE6A003E39F2 /* ImageViewController.swift in Sources */,
 				E020CCB12AC0CB13005A5B48 /* WebViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

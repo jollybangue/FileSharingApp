@@ -14,6 +14,8 @@
 // 5- We can save a copy of a file stored the "Photos" app galery, in a folder of the app "Files". Obviously in that case, the copy saved in the "Files" folder can be renamed as much as we want.
 // 6- We can import a photo saved in a "Files" folder in the "Photos" app gallery. In that case, the copy of the file saved in the "Photos" app gallery is automatically renamed with a format like this: "IMG_0003". The next saved file (in the "Photos" app gallery) will be "IMG_0004", ...
 
+// 7- "preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
+
 // TODO: Change printed messages to alert message for a better user experience (UX)...
 
 // TODO: Improve the "Upload" function, allowing the app to upload any kind of file (not only images).
@@ -73,10 +75,10 @@ class HomeViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        // Get the view controller FileViewController using segue.destination.
-        if let fileVC = segue.destination as? FileViewController {
+        // Get the view controller ImageViewController using segue.destination.
+        if let fileVC = segue.destination as? ImageViewController {
             
-            // Pass the elements of the selected object (tuple (String, Storage reference)) to the new view controller FileViewController.
+            // Pass the elements of the selected object (tuple (String, Storage reference)) to the new view controller ImageViewController.
             if let senderTuple = sender as? (String, StorageReference) {
                 fileVC.selectedFileName = senderTuple.0
                 fileVC.fileReference = senderTuple.1
@@ -144,8 +146,12 @@ class HomeViewController: UIViewController {
         }
     }
     
+    private func uploadFileInCloudStorage(fileData: UTType, fileName: String) {
+        
+    }
+    
     ///This function upload a file picked on the phone to the Firebase Cloud Storage
-    private func uploadFileInCloudStorage(uIImageFile: UIImage, fileName: String) {
+    private func uploadImageInCloudStorage(uIImageFile: UIImage, fileName: String) {
         
         guard let fileInJpeg = uIImageFile.jpegData(compressionQuality: 1.0) else {
             AlertManager.showAlert(myTitle: "Error", myMessage: "Error while converting the chosen file to JPEG")
@@ -187,20 +193,34 @@ class HomeViewController: UIViewController {
     
     
     @IBAction func didTapUpload(_ sender: UIButton) {
-        
-        var mediaPickerConfig = PHPickerConfiguration()
-        mediaPickerConfig.selectionLimit = 1
                 
-        /// Present a photo picker view controller that allows user to pick a media (photo or video)
-        let mediaPickerVC = PHPickerViewController(configuration: mediaPickerConfig)
+        let uploadFileAlert = UIAlertController(title: "Upload a file", message: "Please choose the location of your file", preferredStyle: .alert)
         
-        // TODO: In the future, the app should be able to upload any kind of file (NOT only photos and videos)
-        // Creating an alert for choosing between actions "Media (Photos or Videos)" and "Other files"
-        //let filePickerVC = UIDocumentPickerViewController(forExporting: .init())
+        let uploadFromGalleryAction = UIAlertAction(title: "Upload from Gallery", style: .default) { [self] _ in
+            
+            var mediaPickerConfig = PHPickerConfiguration()
+            mediaPickerConfig.selectionLimit = 1
+                    
+            /// Present a photo picker view controller that allows user to pick a media (photo or video)
+            let mediaPickerVC = PHPickerViewController(configuration: mediaPickerConfig)
+            
+            mediaPickerVC.delegate = self
+            
+            present(mediaPickerVC, animated: true)
+        }
         
-        mediaPickerVC.delegate = self
+        let uploadFromFilesAction = UIAlertAction(title: "Upload from Files", style: .default) { _ in
+            // TODO: In the future, the app should be able to upload any kind of file (NOT only photos and videos)
+            // Creating an alert for choosing between actions "Media (Photos or Videos)" and "Other files"
+            //let filePickerVC = UIDocumentPickerViewController(forExporting: .init())
+        }
         
-        present(mediaPickerVC, animated: true)
+        uploadFileAlert.addAction(uploadFromGalleryAction)
+        uploadFileAlert.addAction(uploadFromFilesAction)
+        uploadFileAlert.addAction(UIAlertAction(title: "Cancel", style: .destructive))
+        
+        present(uploadFileAlert, animated: true)
+
     }
     
     @IBAction func didTapSignOut(_ sender: UIButton) {
@@ -289,17 +309,39 @@ extension HomeViewController: UITableViewDelegate {
                 self.performSegue(withIdentifier: "showImage", sender: (uploadedFileName, fileToOpenRef))
             }
             
-            /// Action #1BIS
+            /// Action #2
             let openInWebKitViewAction = UIAlertAction(title: "Open in WebKit View", style: .default) { _ in
                 self.performSegue(withIdentifier: "showWebView", sender: (uploadedFileName, fileToOpenRef))
             }
             
-            /// Action #2
-            let downloadFileAction = UIAlertAction(title: "Download", style: .default) { _ in
+            /// Action #3
+            let downloadFileAction = UIAlertAction(title: "Download", style: .default) { [self] _ in
                 // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
+                let fileToDownloadRef = myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView)
+                
+                //guard let localFileURL = URL(string: "path/to/FileSharingApp") else {return}
+                
+                let localURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+                
+                guard let localFileURL = localURLs.first else {return}
+                
+                print("URLs of elements inside the Document folder: \(localURLs)")
+                
+                let downloadFileTask = fileToDownloadRef.write(toFile: localFileURL) { maybeURL, maybeError in
+                    if let error = maybeError {
+                        
+                    } else {
+                        AlertManager.showAlert(myTitle: "Download complete", myMessage: "The file \"\(nameOfTheFileSelectedInHomeTableView)\" has been successfully downloaded in the FileSharingApp local folder.")
+                        print("URL of the local file: \(maybeURL)")
+                    }
+                }
+                
+                
+                // TODO: Add "Open file location folder" action.
+                // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times.
             }
             
-            /// Action #3
+            /// Action #4
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
                 
@@ -323,7 +365,7 @@ extension HomeViewController: UITableViewDelegate {
                 
             }
             
-            /// Action #4
+            /// Action #5
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 // Permanently delete from the Firebase Cloud Storage a selected file.
                 let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
@@ -378,26 +420,49 @@ extension HomeViewController: UITableViewDelegate {
 
 extension HomeViewController: PHPickerViewControllerDelegate {
     
+    /// Photo picker view controller. As its name indicates, only photos and video can be picked from here. It triggers the Gallery/"Photos" app on iPhone.
+    
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         
-        guard let fileProvider = results.first?.itemProvider else {return} // Pickup just the first object.
+        // TODO: Allow picking (and then uploading) more than one file at the same time.
+        
+        guard let fileProvider = results.first?.itemProvider else {return} // Pickup the item provider of the first object of the array "results".
         // fileProvider.canLoadObject(ofClass: UIImage.self) This line seems to be useless...
         /// Instead of UIImage, try UTType or UTTypeMovie for videos
         /// NS stands for NeXTSTEP
+    
+//        print("***** registeredContentTypes Description: \(fileProvider.registeredContentTypes.description)")
+//        print("***** registeredContentTypesForOpenInPlace Description: \(fileProvider.registeredContentTypesForOpenInPlace.description)")
+//        print("***** registeredTypeIdentifiers Description: \(fileProvider.registeredTypeIdentifiers.description)")
         
-        /// The name of file the user picked
-        guard let pickedFileName = results.first?.itemProvider.suggestedName else {
+        /// Getting the name of the file the user picked.
+        guard let pickedFileName = fileProvider.suggestedName else {
             AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the name of the picked file.")
             print("##### Error: Unable to get the name of the picked file...")
             return
         }
         
-        ///Here we load ONLY the first object
+        guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
+        
+        guard let myType = pickedFileType.preferredMIMEType else {return}
+        
+        print("***** pickedFileType.preferredMIMEType: \(pickedFileType.preferredMIMEType)")
+//        print("***** pickedFileType.preferredFilenameExtension: \(pickedFileType.preferredFilenameExtension)")
+//        print("***** pickedFileType.referenceURL: \(pickedFileType.referenceURL)")
+        
+        /// Loading file data contained in "fileProvider".
+        
+        //fileProvider.canLoadObject(ofClass: UTType)
+        
+//        fileProvider.loadDataRepresentation(for: pickedFileType) { <#Data?#>, <#(Error)?#> in
+//            <#code#>
+//        }
+                
         fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
             
             if let fileError = error {
-                AlertManager.showAlert(myTitle: "Error while loading the file", myMessage: "It seems that the file you selected is not an image/photo.")
-                print("##### Error while loading the file. It seems that the picked file is not an image/photo. Error: \(fileError.localizedDescription)")
+                AlertManager.showAlert(myTitle: "Error while uploading the file", myMessage: "It seems that the file you selected is not an image/photo.")
+                print("##### Error while uploading the file. It seems that the picked file is not an image/photo. Error details: \(fileError.localizedDescription)")
                 return
             }
             
@@ -408,7 +473,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
             }
             
             DispatchQueue.main.sync {
-                uploadFileInCloudStorage(uIImageFile: pickedFile, fileName: pickedFileName)
+                uploadImageInCloudStorage(uIImageFile: pickedFile, fileName: pickedFileName)
             }
         }
         

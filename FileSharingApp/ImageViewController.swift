@@ -11,7 +11,7 @@
 import UIKit
 import FirebaseStorage
 
-class FileViewController: UIViewController {
+class ImageViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
     
@@ -29,6 +29,7 @@ class FileViewController: UIViewController {
             return
         }
         
+        /// Download in memory (RAM I guess) a file with max size limited to 10 MB
         fileRef.getData(maxSize: (10 * 1024 * 1024)) { [self] maybeData, maybeError in
             
             if let error = maybeError {
@@ -42,6 +43,7 @@ class FileViewController: UIViewController {
                 return
             }
             
+            /// Loads and shows the downloaded image in imageView
             imageView.image = UIImage(data: downloadedFileData)
         }
         
