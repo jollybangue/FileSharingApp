@@ -30,7 +30,7 @@ class ImageViewController: UIViewController {
         }
         
         /// Download in memory (RAM I guess) a file with max size limited to 10 MB
-        fileRef.getData(maxSize: (10 * 1024 * 1024)) { [self] maybeData, maybeError in
+        fileRef.getData(maxSize: (50 * 1024 * 1024)) { [self] maybeData, maybeError in
             
             if let error = maybeError {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "There was an error while opening the selected file.")
