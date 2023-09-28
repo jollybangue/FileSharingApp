@@ -54,6 +54,11 @@ class HomeViewController: UIViewController {
         
         super.viewDidLoad()
         
+//        do {
+//            try FileManager.default.createDirectory(at: .userDirectory.appendingPathComponent(fileStorageRoot, conformingTo: .folder), withIntermediateDirectories: true)
+//        } catch {} /// Create a local folder for storing the files downloaded by the app.
+        
+        
         homeTableView.dataSource = self
         homeTableView.delegate = self
         
@@ -169,7 +174,7 @@ class HomeViewController: UIViewController {
                 print("##### Failed to upload the file. Error: \(uploadError.localizedDescription)")
                 return
             }
-            guard let uploadedFilename = metadata?.name else {
+            guard let uploadedImageName = metadata?.name else {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Error while getting the name of the uploaded file.")
                 print("##### Error while getting the name of the uploaded file.")
                 return
@@ -179,10 +184,10 @@ class HomeViewController: UIViewController {
             
             // TODO: I should add some code to avoid uploading duplicate files (check if the names, sizes and types of the files match...), or uploading the same file again and again.
             
-            AlertManager.showAlert(myTitle: "File uploaded", myMessage: "The file \"\(uploadedFilename)\" has been successfully uploaded in the cloud.")
+            AlertManager.showAlert(myTitle: "File uploaded", myMessage: "The file \"\(uploadedImageName)\" has been successfully uploaded in the cloud.")
             
             print("### Name of the picked local file (fileName): \(fileName)")
-            print("### Name of the file stored in the cloud (uploadedFilename): \(uploadedFilename)")
+            print("### Name of the file stored in the cloud (uploadedFilename): \(uploadedImageName)")
             
             copyDataFromStorageToRealtimeDB()
             
@@ -193,9 +198,10 @@ class HomeViewController: UIViewController {
     
     
     @IBAction func didTapUpload(_ sender: UIButton) {
-                
+        
         let uploadFileAlert = UIAlertController(title: "Upload a file", message: "Please choose the location of your file", preferredStyle: .alert)
         
+        /// Upload Action #1: Upload an image or a video located in phone gallery (app "Photos")
         let uploadFromGalleryAction = UIAlertAction(title: "Upload from Gallery", style: .default) { [self] _ in
             
             var mediaPickerConfig = PHPickerConfiguration()
@@ -209,6 +215,7 @@ class HomeViewController: UIViewController {
             present(mediaPickerVC, animated: true)
         }
         
+        /// Upload Action #2: Upload a file located in the local app folder named "FileSharingApp"
         let uploadFromFilesAction = UIAlertAction(title: "Upload from Files", style: .default) { _ in
             // TODO: In the future, the app should be able to upload any kind of file (NOT only photos and videos)
             // Creating an alert for choosing between actions "Media (Photos or Videos)" and "Other files"
@@ -297,7 +304,7 @@ extension HomeViewController: UITableViewDelegate {
             
             let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
-            /// Action #1
+            /// Action #1: Open image in ImageView
             let openImageAction = UIAlertAction(title: "Open in Image View", style: .default) { [self] _ in
                 
                 if (fileContentType != "image/jpeg") && (fileContentType != "image/png") {
@@ -309,31 +316,40 @@ extension HomeViewController: UITableViewDelegate {
                 self.performSegue(withIdentifier: "showImage", sender: (uploadedFileName, fileToOpenRef))
             }
             
-            /// Action #2
+            /// Action #2: Open file in WebKit View
             let openInWebKitViewAction = UIAlertAction(title: "Open in WebKit View", style: .default) { _ in
                 self.performSegue(withIdentifier: "showWebView", sender: (uploadedFileName, fileToOpenRef))
             }
             
-            /// Action #3
+            /// Action #3: Download a file located in Firebase Cloud Storage and save it on local device
             let downloadFileAction = UIAlertAction(title: "Download", style: .default) { [self] _ in
                 // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
                 let fileToDownloadRef = myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView)
                 
                 //guard let localFileURL = URL(string: "path/to/FileSharingApp") else {return}
                 
-                let localURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+                let localURLs = FileManager.default.urls(for: .userDirectory, in: .userDomainMask)
                 
-                guard let localFileURL = localURLs.first else {return}
+                guard let appFolderURL = localURLs.first else {return}
+                
+                let localFileURL = appFolderURL.appendingPathComponent(nameOfTheFileSelectedInHomeTableView, conformingTo: .image)
                 
                 print("URLs of elements inside the Document folder: \(localURLs)")
                 
                 let downloadFileTask = fileToDownloadRef.write(toFile: localFileURL) { maybeURL, maybeError in
                     if let error = maybeError {
-                        
-                    } else {
-                        AlertManager.showAlert(myTitle: "Download complete", myMessage: "The file \"\(nameOfTheFileSelectedInHomeTableView)\" has been successfully downloaded in the FileSharingApp local folder.")
-                        print("URL of the local file: \(maybeURL)")
+                        AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to write the downloaded file on local device.")
+                        print("Error details: \(error)")
+                        return
                     }
+                    
+                    guard let localURL = maybeURL else {
+                        AlertManager.showAlert(myTitle: "Error", myMessage: "Error while getting the local URL of the downloaded file")
+                        return
+                    }
+                    
+                        AlertManager.showAlert(myTitle: "Download complete", myMessage: "The file \"\(nameOfTheFileSelectedInHomeTableView)\" has been successfully downloaded in the FileSharingApp local folder.")
+                        print("URL of the local file: \(localURL)")
                 }
                 
                 
@@ -341,7 +357,7 @@ extension HomeViewController: UITableViewDelegate {
                 // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times.
             }
             
-            /// Action #4
+            /// Action #4: Generate a link to access the selected file stored in Firebase Cloud Storage
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
                 
@@ -365,7 +381,7 @@ extension HomeViewController: UITableViewDelegate {
                 
             }
             
-            /// Action #5
+            /// Action #5: Delete file
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 // Permanently delete from the Firebase Cloud Storage a selected file.
                 let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
@@ -387,7 +403,7 @@ extension HomeViewController: UITableViewDelegate {
             fileDetailsAlert.addAction(downloadFileAction)
             fileDetailsAlert.addAction(shareFileAction)
             fileDetailsAlert.addAction(deleteFileAction)
-            fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) /// Action #5
+            fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) /// Action #5: Cancel
             
             present(fileDetailsAlert, animated: true)
         }
