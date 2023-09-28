@@ -16,6 +16,8 @@
 
 // 7- "preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
 
+// TODO: Add a button to access the folder of the downloaded files. (The files downloaded by this app, fron Firebase cloud storage.)
+
 // TODO: Change printed messages to alert message for a better user experience (UX)...
 
 // TODO: Improve the "Upload" function, allowing the app to upload any kind of file (not only images).
@@ -304,6 +306,7 @@ extension HomeViewController: UITableViewDelegate {
             
             let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
             
+            
             /// Action #1: Open image in ImageView
             let openImageAction = UIAlertAction(title: "Open in Image View", style: .default) { [self] _ in
                 
@@ -321,7 +324,12 @@ extension HomeViewController: UITableViewDelegate {
                 self.performSegue(withIdentifier: "showWebView", sender: (uploadedFileName, fileToOpenRef))
             }
             
-            /// Action #3: Download a file located in Firebase Cloud Storage and save it on local device
+            /// Action #3: Open file with default system resources
+            let openFileAction = UIAlertAction(title: "Open file with System", style: .default) { _ in
+                // TODO: Open the selected file with the system default app...
+            }
+            
+            /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device
             let downloadFileAction = UIAlertAction(title: "Download", style: .default) { [self] _ in
                 // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
                 let fileToDownloadRef = myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView)
@@ -357,7 +365,7 @@ extension HomeViewController: UITableViewDelegate {
                 // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times.
             }
             
-            /// Action #4: Generate a link to access the selected file stored in Firebase Cloud Storage
+            /// Action #5: Generate a link to access the selected file stored in Firebase Cloud Storage
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
                 
@@ -381,7 +389,7 @@ extension HomeViewController: UITableViewDelegate {
                 
             }
             
-            /// Action #5: Delete file
+            /// Action #6: Delete file
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 // Permanently delete from the Firebase Cloud Storage a selected file.
                 let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
@@ -400,6 +408,7 @@ extension HomeViewController: UITableViewDelegate {
                         
             fileDetailsAlert.addAction(openImageAction)
             fileDetailsAlert.addAction(openInWebKitViewAction)
+            fileDetailsAlert.addAction(openFileAction)
             fileDetailsAlert.addAction(downloadFileAction)
             fileDetailsAlert.addAction(shareFileAction)
             fileDetailsAlert.addAction(deleteFileAction)
