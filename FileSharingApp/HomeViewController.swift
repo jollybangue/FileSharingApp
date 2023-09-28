@@ -325,12 +325,12 @@ extension HomeViewController: UITableViewDelegate {
             }
             
             /// Action #3: Open file with default system resources
-            let openFileAction = UIAlertAction(title: "Open file with System", style: .default) { _ in
+            let openFileAction = UIAlertAction(title: "Open with System", style: .default) { _ in
                 // TODO: Open the selected file with the system default app...
             }
             
-            /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device
-            let downloadFileAction = UIAlertAction(title: "Download", style: .default) { [self] _ in
+            /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device. Download in app default folder
+            let downloadFileAction = UIAlertAction(title: "Download in the default app folder", style: .default) { [self] _ in
                 // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
                 let fileToDownloadRef = myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView)
                 
@@ -363,6 +363,11 @@ extension HomeViewController: UITableViewDelegate {
                 
                 // TODO: Add "Open file location folder" action.
                 // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times.
+            }
+            
+            /// Action #4BIS: Choose where to save the downloaded file
+            let downloadInSpecifiedLocationAction = UIAlertAction(title: "Download in specified location", style: .default) { _ in
+                // TODO: Download the chosen file and select where to save that file in the local device.
             }
             
             /// Action #5: Generate a link to access the selected file stored in Firebase Cloud Storage
@@ -410,6 +415,7 @@ extension HomeViewController: UITableViewDelegate {
             fileDetailsAlert.addAction(openInWebKitViewAction)
             fileDetailsAlert.addAction(openFileAction)
             fileDetailsAlert.addAction(downloadFileAction)
+            fileDetailsAlert.addAction(downloadInSpecifiedLocationAction)
             fileDetailsAlert.addAction(shareFileAction)
             fileDetailsAlert.addAction(deleteFileAction)
             fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) /// Action #5: Cancel
