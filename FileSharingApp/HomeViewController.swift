@@ -336,41 +336,35 @@ extension HomeViewController: UITableViewDelegate {
                 
                 //guard let localFileURL = URL(string: "path/to/FileSharingApp") else {return}
                 
-                let localURLs = FileManager.default.urls(for: .userDirectory, in: .userDomainMask)
+                /// Array containing the url of the current user's Document directory. The "urls()" function searches the folders defined in the given parameters.
+                let localURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
                 
-                guard let appFolderURL = localURLs.first else {return}
+                /// In iOS, the user Document folder of this app has the same name as the app (in this case: "FileSharingApp").
+                /// To make that folder visible in iOS through the app "Files", I have added the parameters "Supports opening documents in place" and "Application supports iTunes file sharing" to the "Info.plist" file, and set both parameters to "YES".
+                let appDocumentFolderURL = localURLs[0]
                 
-                let localFileURL = appFolderURL.appendingPathComponent(nameOfTheFileSelectedInHomeTableView, conformingTo: .image)
-                
-                print("URLs of elements inside the Document folder: \(localURLs)")
-                
-                let downloadFileTask = fileToDownloadRef.write(toFile: localFileURL) { maybeURL, maybeError in
+                /// Created "downloadFileTask" to monitor and manage the download process. The app writes the downloaded files at the "appDocumentFolderURL" ()
+                let downloadFileTask = fileToDownloadRef.write(toFile: appDocumentFolderURL.appending(path: nameOfTheFileSelectedInHomeTableView)) { maybeURL, maybeError in
                     if let error = maybeError {
-                        AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to write the downloaded file on local device.")
-                        print("Error details: \(error)")
+                        AlertManager.showAlert(myTitle: "Download Error", myMessage: "Unable to download and save the file on local device.")
+                        print("Download error details: \(error.localizedDescription)")
                         return
                     }
                     
-                    guard let localURL = maybeURL else {
-                        AlertManager.showAlert(myTitle: "Error", myMessage: "Error while getting the local URL of the downloaded file")
-                        return
-                    }
-                    
-                        AlertManager.showAlert(myTitle: "Download complete", myMessage: "The file \"\(nameOfTheFileSelectedInHomeTableView)\" has been successfully downloaded in the FileSharingApp local folder.")
-                        print("URL of the local file: \(localURL)")
+                    guard let savedFileURL = maybeURL else {return}
+                    AlertManager.showAlert(myTitle: "Download complete", myMessage: "The file has been successfully downloaded and saved on local device.")
+                    print("Downloaded file local URL: \(savedFileURL)")
                 }
-                
-                
-                // TODO: Add "Open file location folder" action.
-                // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times.
+                // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times(So avoid erasing existing file with the same name).
             }
             
-            /// Action #4BIS: Choose where to save the downloaded file
+            /// Action #5: Choose where to save the downloaded file
             let downloadInSpecifiedLocationAction = UIAlertAction(title: "Download in specified location", style: .default) { _ in
                 // TODO: Download the chosen file and select where to save that file in the local device.
+                // TODO: Add "Open file location folder" action.
             }
             
-            /// Action #5: Generate a link to access the selected file stored in Firebase Cloud Storage
+            /// Action #6: Generate a link to access the selected file stored in Firebase Cloud Storage
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
                 
@@ -394,7 +388,7 @@ extension HomeViewController: UITableViewDelegate {
                 
             }
             
-            /// Action #6: Delete file
+            /// Action #7: Delete file
             let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 // Permanently delete from the Firebase Cloud Storage a selected file.
                 let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
@@ -410,7 +404,7 @@ extension HomeViewController: UITableViewDelegate {
                 
                 present(deleteConfirmationAlert, animated: true)
             }
-                        
+            
             fileDetailsAlert.addAction(openImageAction)
             fileDetailsAlert.addAction(openInWebKitViewAction)
             fileDetailsAlert.addAction(openFileAction)
@@ -418,7 +412,7 @@ extension HomeViewController: UITableViewDelegate {
             fileDetailsAlert.addAction(downloadInSpecifiedLocationAction)
             fileDetailsAlert.addAction(shareFileAction)
             fileDetailsAlert.addAction(deleteFileAction)
-            fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) /// Action #5: Cancel
+            fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) /// Action #8: Cancel
             
             present(fileDetailsAlert, animated: true)
         }
