@@ -4,7 +4,7 @@
 //
 //  Created by Jolly BANGUE on 2023-08-28.
 //
-// Description: A native iOS app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication and Firebase Cloud Storage).
+// Description: A native iOS app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication, Firebase Cloud Storage, and Firebase Realtime Database).
 
 // Some important notes about iOS "Photos" and "Files" apps of the simulators
 // 1- When we drag and drop files from the computer to the the "Photos" app gallery, the name of the file is changed. The app add a unique random key at the end of the original file name (E.g.: "File 1" in the computer becomes something like "File 1-6CEAC9E8-5385-4E51-B7F2-032128643381")
