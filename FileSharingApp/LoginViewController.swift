@@ -55,6 +55,8 @@ class LoginViewController: UIViewController {
             if let error = maybeError {
                 let authenticationErrorCode = AuthErrorCode.Code(rawValue: error._code)
                 
+                // TODO: Instead of listing different cases, try just to extract the default error message thrown by Firebase Auth.
+                
                 switch authenticationErrorCode {
 
                 case .invalidEmail:
