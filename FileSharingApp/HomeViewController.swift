@@ -16,15 +16,23 @@
 
 // 7- "preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
 
-// TODO: Add a button to access the folder of the downloaded files. (The files downloaded by this app, fron Firebase cloud storage.)
+// TODO: Add a button to access the folder of the downloaded files. (The files downloaded by this app, from Firebase cloud storage.)
 
-// TODO: Change printed messages to alert message for a better user experience (UX)...
+// TODO: Change printed messages to alert message for a better user experience (UX)... Used the Firebase predefined error messages.
 
-// TODO: Improve the "Upload" function, allowing the app to upload any kind of file (not only images).
+// TODO: Improve the "Upload" function, allowing the app to upload any kind of file (not only images). See uploadFileInCloudStorage() function.
 
-// TODO: Implement the "Download" function.
+// TODO: Implement the "Download in a selected folder" function.
 
 // TODO: Improve the "Share file" function.
+
+// TODO: Implement observers for all upload and download tasks.
+
+// TODO: Manage upload and download duplications (to avoid uploading or downloading the same file many times.)
+
+// TODO: Unit tests.
+
+// TODO: UI/UX tests.
 
 import UIKit
 import PhotosUI
@@ -33,9 +41,7 @@ import FirebaseStorage
 import FirebaseDatabase
 
 class HomeViewController: UIViewController {
-    
-    // TODO: Later, I can add a label in Home screen to show the email of the currently logged in user and set the text with the value of userEmail...
-    
+        
     @IBOutlet weak var homeTableView: UITableView!
     
     @IBOutlet weak var userEmailLabel: UILabel!
@@ -55,11 +61,6 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        
-//        do {
-//            try FileManager.default.createDirectory(at: .userDirectory.appendingPathComponent(fileStorageRoot, conformingTo: .folder), withIntermediateDirectories: true)
-//        } catch {} /// Create a local folder for storing the files downloaded by the app.
-        
         
         homeTableView.dataSource = self
         homeTableView.delegate = self
@@ -153,11 +154,13 @@ class HomeViewController: UIViewController {
         }
     }
     
+    /// This function uploads a file picked on the phone to the Firebase Cloud Storage
     private func uploadFileInCloudStorage(fileData: UTType, fileName: String) {
+        // TODO: P0
         
     }
     
-    ///This function upload a file picked on the phone to the Firebase Cloud Storage
+    /// This function uploads an image picked on the phone to the Firebase Cloud Storage
     private func uploadImageInCloudStorage(uIImageFile: UIImage, fileName: String) {
         
         guard let fileInJpeg = uIImageFile.jpegData(compressionQuality: 1.0) else {
@@ -182,9 +185,9 @@ class HomeViewController: UIViewController {
                 return
             }
             
-            // TODO: I need to implement an upload progress observer here... Using UIProgressView...
+            // TODO: Implement an upload progress observer here... Using UIProgressView...
             
-            // TODO: I should add some code to avoid uploading duplicate files (check if the names, sizes and types of the files match...), or uploading the same file again and again.
+            // TODO: Add some code to avoid uploading duplicate files (check if the names, sizes and types of the files match...), or uploading the same file again and again.
             
             AlertManager.showAlert(myTitle: "File uploaded", myMessage: "The file \"\(uploadedImageName)\" has been successfully uploaded in the cloud.")
             
@@ -280,7 +283,6 @@ extension HomeViewController: UITableViewDelegate {
         
         let nameOfTheFileSelectedInHomeTableView: String = realtimeFileList[indexPath.row].1
         
-        // TODO: In the future, for optimization, I should implement one function to get all the metadata (including the list of files) from Firebase cloud storage and save them in the Realtime database.
         /// And all the information needed by the application should be get from the Realtime database.
         /// It is better to proceed like that because is not possible to access informations like metadata or file list outside the Cloud Storage functions getMetadata and listAll.
         
@@ -324,26 +326,24 @@ extension HomeViewController: UITableViewDelegate {
                 self.performSegue(withIdentifier: "showWebView", sender: (uploadedFileName, fileToOpenRef))
             }
             
-            /// Action #3: Open file with default system resources
+            // TODO: Action #3: Open file with default system resources
             let openFileAction = UIAlertAction(title: "Open with System", style: .default) { _ in
                 // TODO: Open the selected file with the system default app...
             }
             
-            /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device. Download in app default folder
+            /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device. Download file in app default folder (folder: "FileSharingApp"). The downloaded files are opened by default with Safari.
             let downloadFileAction = UIAlertAction(title: "Download in the default app folder", style: .default) { [self] _ in
                 // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
                 let fileToDownloadRef = myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView)
-                
-                //guard let localFileURL = URL(string: "path/to/FileSharingApp") else {return}
-                
-                /// Array containing the url of the current user's Document directory. The "urls()" function searches the folders defined in the given parameters.
+                                
+                /// "localURLs" is an Array containing the url of the current user's Document directory. The "urls()" function searches the folders defined in the given parameters.
                 let localURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
                 
-                /// In iOS, the user Document folder of this app has the same name as the app (in this case: "FileSharingApp").
+                /// In iOS, the user Document directory of this app has the same name as the app (in this case: "FileSharingApp").
                 /// To make that folder visible in iOS through the app "Files", I have added the parameters "Supports opening documents in place" and "Application supports iTunes file sharing" to the "Info.plist" file, and set both parameters to "YES".
-                let appDocumentFolderURL = localURLs[0]
+                let appDocumentFolderURL = localURLs[0] /// Get the url of the default local folder of this app ("FileSharingApp")
                 
-                /// Created "downloadFileTask" to monitor and manage the download process. The app writes the downloaded files at the "appDocumentFolderURL" ()
+                /// Created "downloadFileTask" to monitor and manage the download process. The app writes the downloaded files in the "appDocumentFolderURL" ()
                 let downloadFileTask = fileToDownloadRef.write(toFile: appDocumentFolderURL.appending(path: nameOfTheFileSelectedInHomeTableView)) { maybeURL, maybeError in
                     if let error = maybeError {
                         AlertManager.showAlert(myTitle: "Download Error", myMessage: "Unable to download and save the file on local device.")
@@ -358,13 +358,13 @@ extension HomeViewController: UITableViewDelegate {
                 // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times(So avoid erasing existing file with the same name).
             }
             
-            /// Action #5: Choose where to save the downloaded file
+            // TODO: Action #5: Choose where to save the downloaded file
             let downloadInSpecifiedLocationAction = UIAlertAction(title: "Download in specified location", style: .default) { _ in
                 // TODO: Download the chosen file and select where to save that file in the local device.
                 // TODO: Add "Open file location folder" action.
             }
             
-            /// Action #6: Generate a link to access the selected file stored in Firebase Cloud Storage
+            // TODO: Action #6: Generate a link to access the selected file stored in Firebase Cloud Storage. Interface to be improved...
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
                 
@@ -471,8 +471,8 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         
         guard let myType = pickedFileType.preferredMIMEType else {return}
         
-        print("***** pickedFileType.preferredMIMEType: \(pickedFileType.preferredMIMEType)")
-//        print("***** pickedFileType.preferredFilenameExtension: \(pickedFileType.preferredFilenameExtension)")
+        print("***** pickedFileType.preferredMIMEType: \(pickedFileType.preferredMIMEType)") // TODO: Type of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
+        print("***** pickedFileType.preferredFilenameExtension: \(pickedFileType.preferredFilenameExtension)") // TODO: Extension of the local file picked. Can be used while uploading the file.
 //        print("***** pickedFileType.referenceURL: \(pickedFileType.referenceURL)")
         
         /// Loading file data contained in "fileProvider".
@@ -490,6 +490,8 @@ extension HomeViewController: PHPickerViewControllerDelegate {
                 print("##### Error while uploading the file. It seems that the picked file is not an image/photo. Error details: \(fileError.localizedDescription)")
                 return
             }
+            
+            // TODO: P0, Add code for also uploading video and any kind of media file stored in the gallery (Photos app).
             
             guard let pickedFile = wrappedFile as? UIImage else {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Error: Failed to cast the file as UIImage.")
