@@ -34,6 +34,8 @@
 
 // TODO: UI/UX tests.
 
+// TODO: Generate app documentation
+
 import UIKit
 import PhotosUI
 import FirebaseAuth
@@ -452,13 +454,9 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         // TODO: Allow picking (and then uploading) more than one file at the same time.
         
         guard let fileProvider = results.first?.itemProvider else {return} // Pickup the item provider of the first object of the array "results".
-        // fileProvider.canLoadObject(ofClass: UIImage.self) This line seems to be useless...
+        //fileProvider.canLoadObject(ofClass: UIImage.self) // This line seems to be useless...
         /// Instead of UIImage, try UTType or UTTypeMovie for videos
         /// NS stands for NeXTSTEP
-    
-//        print("***** registeredContentTypes Description: \(fileProvider.registeredContentTypes.description)")
-//        print("***** registeredContentTypesForOpenInPlace Description: \(fileProvider.registeredContentTypesForOpenInPlace.description)")
-//        print("***** registeredTypeIdentifiers Description: \(fileProvider.registeredTypeIdentifiers.description)")
         
         /// Getting the name of the file the user picked.
         guard let pickedFileName = fileProvider.suggestedName else {
@@ -469,20 +467,39 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         
         guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
         
-        guard let myType = pickedFileType.preferredMIMEType else {return}
+        guard let pickedFileTypeName = pickedFileType.preferredMIMEType else {return}
         
-        print("***** pickedFileType.preferredMIMEType: \(pickedFileType.preferredMIMEType)") // TODO: Type of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
-        print("***** pickedFileType.preferredFilenameExtension: \(pickedFileType.preferredFilenameExtension)") // TODO: Extension of the local file picked. Can be used while uploading the file.
+        guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return}
+        
+        /// Name of the type (as represented in Firebase) of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
+        print("***** Name of the type of the selected file (pickedFileType.preferredMIMEType): \(pickedFileTypeName)")
+        
+        /// Extension of the local file picked. Can be used while uploading the file.
+        print("***** Extension of the local file picked (pickedFileType.preferredFilenameExtension): \(pickedFileExtension)")
+        
 //        print("***** pickedFileType.referenceURL: \(pickedFileType.referenceURL)")
         
-        /// Loading file data contained in "fileProvider".
-        
-        //fileProvider.canLoadObject(ofClass: UTType)
-        
+                
 //        fileProvider.loadDataRepresentation(for: pickedFileType) { <#Data?#>, <#(Error)?#> in
 //            <#code#>
 //        }
+        
+//        fileProvider.loadDataRepresentation(forTypeIdentifier: <#T##String#>) { <#Data?#>, <#Error?#> in
+//            <#code#>
+//        }
+        
+//        fileProvider.loadDataRepresentation(for: pickedFileType) { [self] wrappedData, maybeError in
+//            if let error = maybeError {
+//                AlertManager.showAlert(myTitle: "Error while uploading the file", myMessage: "Unable to upload the selected file")
+//                print("##### Error while uploading the file. Error details: \(error.localizedDescription)")
+//                return
+//            }
+//            
+//            guard let pickedFileData = wrappedData else {return}
+//                uploadFileInCloudStorage(fileData: <#T##UTType#>, fileName: <#T##String#>)
+//        }
                 
+        /// Loading file data contained in "fileProvider".
         fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
             
             if let fileError = error {
@@ -493,14 +510,14 @@ extension HomeViewController: PHPickerViewControllerDelegate {
             
             // TODO: P0, Add code for also uploading video and any kind of media file stored in the gallery (Photos app).
             
-            guard let pickedFile = wrappedFile as? UIImage else {
+            guard let pickedImage = wrappedFile as? UIImage else {
                 AlertManager.showAlert(myTitle: "Error", myMessage: "Error: Failed to cast the file as UIImage.")
                 print("##### Error: Failed to cast the file as UIImage.")
                 return
             }
             
             DispatchQueue.main.sync {
-                uploadImageInCloudStorage(uIImageFile: pickedFile, fileName: pickedFileName)
+                uploadImageInCloudStorage(uIImageFile: pickedImage, fileName: pickedFileName)
             }
         }
         
