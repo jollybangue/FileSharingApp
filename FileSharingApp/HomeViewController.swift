@@ -30,11 +30,15 @@
 
 // TODO: Manage upload and download duplications (to avoid uploading or downloading the same file many times.)
 
+// TODO: Allow selecting many files in the table view. Allow deleting many selected files at the same time.
+
 // TODO: Unit tests.
 
 // TODO: UI/UX tests.
 
-// TODO: Generate app documentation
+// TODO: Refactoring.
+
+// TODO: Generate app documentation.
 
 import UIKit
 import PhotosUI
@@ -171,11 +175,11 @@ class HomeViewController: UIViewController {
             return
         }
         
-        /// A file metadata containing information about the content type, otherwise, the file will be uploaded as application/octet-stream (no specific extension)
+        /// A file metadata containing information about the content type, otherwise, the file will be uploaded in Firebase Storage as "application/octet-stream" (no specific extension)
         let fileMetadata = StorageMetadata()
         fileMetadata.contentType = "image/jpeg"
         
-        myStorageRef.child(fileStorageRoot).child("\(fileName).jpg").putData(fileInJpeg, metadata: fileMetadata) { [self] metadata, error in
+        myStorageRef.child(fileStorageRoot).child("\(fileName).jpeg").putData(fileInJpeg, metadata: fileMetadata) { [self] metadata, error in
             if let uploadError = error {
                 AlertManager.showAlert(myTitle: "Uploading Error", myMessage: "Failed to upload the file")
                 print("##### Failed to upload the file. Error: \(uploadError.localizedDescription)")
@@ -340,6 +344,7 @@ extension HomeViewController: UITableViewDelegate {
                                 
                 /// "localURLs" is an Array containing the url of the current user's Document directory. The "urls()" function searches the folders defined in the given parameters.
                 let localURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+                //let galleryURLs = FileManager.default.urls(for: ., in: <#T##FileManager.SearchPathDomainMask#>)
                 
                 /// In iOS, the user Document directory of this app has the same name as the app (in this case: "FileSharingApp").
                 /// To make that folder visible in iOS through the app "Files", I have added the parameters "Supports opening documents in place" and "Application supports iTunes file sharing" to the "Info.plist" file, and set both parameters to "YES".
@@ -458,7 +463,8 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         /// Instead of UIImage, try UTType or UTTypeMovie for videos
         /// NS stands for NeXTSTEP
         
-        /// Getting the name of the file the user picked.
+        /// Getting the name (name WITHOUT extension) of the file the user picked. We should use ".preferredFilenameExtension" to get the file extension.
+        /// To get the the whole name of the picked file including extension file, we shoud get the local URL of the picked file and then extract the last component of the URL using ".lastPathComponent"
         guard let pickedFileName = fileProvider.suggestedName else {
             AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the name of the picked file.")
             print("##### Error: Unable to get the name of the picked file...")
@@ -466,39 +472,73 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         }
         
         guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
-        
-        guard let pickedFileTypeName = pickedFileType.preferredMIMEType else {return}
+                
+        guard let pickedFileContentTypeName = pickedFileType.preferredMIMEType else {return}
         
         guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return}
         
+        let pickedFileTypeIdentifier = pickedFileType.identifier
+        
+        let pickedFileMetadata = StorageMetadata()
+        pickedFileMetadata.contentType = pickedFileContentTypeName
+        //fileMetadata.contentType = "image/jpeg"
+        
+        /// Print the name of the picked file
+        print("Name of the picked file: \(pickedFileName)")
+        
         /// Name of the type (as represented in Firebase) of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
-        print("***** Name of the type of the selected file (pickedFileType.preferredMIMEType): \(pickedFileTypeName)")
+        print("***** Name of the type of the selected file (pickedFileType.preferredMIMEType) AKA Content type name: \(pickedFileContentTypeName)")
         
         /// Extension of the local file picked. Can be used while uploading the file.
         print("***** Extension of the local file picked (pickedFileType.preferredFilenameExtension): \(pickedFileExtension)")
         
-//        print("***** pickedFileType.referenceURL: \(pickedFileType.referenceURL)")
+        /// File type identifier
+        print("#### Type identifier of the picked file: \(pickedFileTypeIdentifier)")
         
-                
-//        fileProvider.loadDataRepresentation(for: pickedFileType) { <#Data?#>, <#(Error)?#> in
-//            <#code#>
-//        }
+        // print("***** pickedFileType.referenceURL: \(pickedFileType.referenceURL)") // The value is null.
         
-//        fileProvider.loadDataRepresentation(forTypeIdentifier: <#T##String#>) { <#Data?#>, <#Error?#> in
-//            <#code#>
-//        }
-        
-//        fileProvider.loadDataRepresentation(for: pickedFileType) { [self] wrappedData, maybeError in
-//            if let error = maybeError {
-//                AlertManager.showAlert(myTitle: "Error while uploading the file", myMessage: "Unable to upload the selected file")
-//                print("##### Error while uploading the file. Error details: \(error.localizedDescription)")
-//                return
+        // ***** Getting the (temporary) URL of the picked file *****
+        ///loadInPlaceFileRepresentationForTypeIdentifier: is not supported. Use loadFileRepresentationForTypeIdentifier: instead.
+        /// The function loadFileRepresentation() below, asynchronously writes a copy of the provided, typed data to a temporary file, returning a progress object.
+        fileProvider.loadFileRepresentation(forTypeIdentifier: pickedFileType.identifier) { maybeURL, maybeError in
+            if let error = maybeError {
+                AlertManager.showAlert(myTitle: "Uploading error", myMessage: "Unable to get the URL of the local file.")
+                print("Uploading error details: \(error.localizedDescription)")
+                return
+            }
+            guard let pickedFileURL = maybeURL else {return}
+            print("##### URL of the picked file: \(pickedFileURL)")
+            print("#####Picked file last path component:\(pickedFileURL.lastPathComponent)")
+            
+            let pickedFileNameWithExtension = pickedFileURL.lastPathComponent
+            
+            // Uploading the picked file using its local temporary URL
+            /// myStorageRef.child(fileStorageRoot).child("\(fileName).jpg")
+            //myStorageRef.child(fileStorageRoot).child(pickedFileNameWithExtension).__putFile(from: pickedFileURL) // The file located at this URL is not reachable. (Maybe because it is not possible to do direct operations in files located in temp folders.)
+            
+            /// Note: putData should be used instead of putFile in Extensions. (Note that here PHPickerViewControllerDelegate is implemented as EXTENSION of HomeViewController).
+            /// Because using putFile, the app try to access the file located in the local URL, but unfortunately (probably for security reasons), the file is not reacheable.
+//            myStorageRef.child(fileStorageRoot).child(pickedFileNameWithExtension).putFile(from: pickedFileURL, metadata: pickedFileMetadata) { [self] maybeMetadata, maybeError in
+//                
+//                if let uploadingError = maybeError {
+//                    AlertManager.showAlert(myTitle: "Upload error", myMessage: "Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
+//                    print("Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
+//                    return
+//                }
+//                
+//                guard let uploadedFileMetadata = maybeMetadata else {return}
+//                
+//                AlertManager.showAlert(myTitle: "File uploaded", myMessage: "The file \"\(pickedFileNameWithExtension)\" has been successfully uploaded in the cloud.")
+//                
+//                print("### Name of the picked local file (pickedFileNameWithExtension): \(pickedFileNameWithExtension)")
+//                print("### Metadata of the file stored in the cloud (uploadedFileMetadata): \(uploadedFileMetadata)")
+//                
+//                copyDataFromStorageToRealtimeDB()
+//                
+//                getFileNamesFromRealtimeDB()
 //            }
-//            
-//            guard let pickedFileData = wrappedData else {return}
-//                uploadFileInCloudStorage(fileData: <#T##UTType#>, fileName: <#T##String#>)
-//        }
-                
+        }
+        
         /// Loading file data contained in "fileProvider".
         fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
             
