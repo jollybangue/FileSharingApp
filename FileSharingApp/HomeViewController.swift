@@ -32,6 +32,8 @@
 
 // TODO: Allow selecting many files in the table view. Allow deleting many selected files at the same time.
 
+// TODO: Try to delete all the files from the Home table view and see how it works.
+
 // TODO: Unit tests.
 
 // TODO: UI/UX tests.
@@ -63,7 +65,7 @@ class HomeViewController: UIViewController {
     
     /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database...
     private var realtimeFileList: [(String, String)] = []
-            
+                
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -161,8 +163,8 @@ class HomeViewController: UIViewController {
     }
     
     /// This function uploads a file picked on the phone to the Firebase Cloud Storage
-    private func uploadFileInCloudStorage(fileData: UTType, fileName: String) {
-        // TODO: P0
+    private func uploadFileToCloudStorage(fileData: UTType, fileName: String) {
+        // TODO: P000
         
     }
     
@@ -467,12 +469,11 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         /// To get the the whole name of the picked file including extension file, we shoud get the local URL of the picked file and then extract the last component of the URL using ".lastPathComponent"
         guard let pickedFileName = fileProvider.suggestedName else {
             AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the name of the picked file.")
-            print("##### Error: Unable to get the name of the picked file...")
             return
         }
         
         guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
-                
+        
         guard let pickedFileContentTypeName = pickedFileType.preferredMIMEType else {return}
         
         guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return}
@@ -480,11 +481,12 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         let pickedFileTypeIdentifier = pickedFileType.identifier
         
         let pickedFileMetadata = StorageMetadata()
+        /// Setting the content type of the file to be uploaded. Otherwise, the file will be uploaded in Firebase Storage as "application/octet-stream" (so with no specific extension)...
         pickedFileMetadata.contentType = pickedFileContentTypeName
-        //fileMetadata.contentType = "image/jpeg"
+        // FORMAT: fileMetadata.contentType = "image/jpeg"
         
-        /// Print the name of the picked file
-        print("Name of the picked file: \(pickedFileName)")
+        /// Print the name of the picked file (WITHOUT extension)
+        print("Name of the picked file WITHOUT extension: \(pickedFileName)")
         
         /// Name of the type (as represented in Firebase) of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
         print("***** Name of the type of the selected file (pickedFileType.preferredMIMEType) AKA Content type name: \(pickedFileContentTypeName)")
@@ -492,74 +494,94 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         /// Extension of the local file picked. Can be used while uploading the file.
         print("***** Extension of the local file picked (pickedFileType.preferredFilenameExtension): \(pickedFileExtension)")
         
-        /// File type identifier
-        print("#### Type identifier of the picked file: \(pickedFileTypeIdentifier)")
+        /// File type identifier. It is used for loading file representation (for example to get the local URL of the picked file.)
+        print("#### Identifier of the type of the picked file: \(pickedFileTypeIdentifier)")
         
         // print("***** pickedFileType.referenceURL: \(pickedFileType.referenceURL)") // The value is null.
         
-        // ***** Getting the (temporary) URL of the picked file *****
+        // ***** Getting the (temporary) local URL of the picked file *****
         ///loadInPlaceFileRepresentationForTypeIdentifier: is not supported. Use loadFileRepresentationForTypeIdentifier: instead.
         /// The function loadFileRepresentation() below, asynchronously writes a copy of the provided, typed data to a temporary file, returning a progress object.
-        fileProvider.loadFileRepresentation(forTypeIdentifier: pickedFileType.identifier) { maybeURL, maybeError in
+        fileProvider.loadFileRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeURL, maybeError in
             if let error = maybeError {
                 AlertManager.showAlert(myTitle: "Uploading error", myMessage: "Unable to get the URL of the local file.")
                 print("Uploading error details: \(error.localizedDescription)")
                 return
             }
+            
+            /// "pickedFileURL" contains the URL of the local file that the user picked/chose for uploading. In fact, when the file is picked, iOS write a copy of the file in a temporary folder and stores the local URL of that temp file in "pickedFileURL". Again, probably for security purposes.
             guard let pickedFileURL = maybeURL else {return}
             print("##### URL of the picked file: \(pickedFileURL)")
-            print("#####Picked file last path component:\(pickedFileURL.lastPathComponent)")
+            print("##### Complete name of the picked file including file extension:\(pickedFileURL.lastPathComponent)")
             
+            /// "pickedFileNameWithExtension" contains the complete name of the file picked by the user for uploading... It is extracted from the complete URL of the local (temp) file.
             let pickedFileNameWithExtension = pickedFileURL.lastPathComponent
             
-            // Uploading the picked file using its local temporary URL
-            /// myStorageRef.child(fileStorageRoot).child("\(fileName).jpg")
-            //myStorageRef.child(fileStorageRoot).child(pickedFileNameWithExtension).__putFile(from: pickedFileURL) // The file located at this URL is not reachable. (Maybe because it is not possible to do direct operations in files located in temp folders.)
+            /// Loading the file to be uploaded in memory
+            fileProvider.loadDataRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeData, maybeError in
+                
+                if let error = maybeError {
+                    AlertManager.showAlert(myTitle: "Uploading error", myMessage: "Unable to load the picked file in memory. Error details:\(error.localizedDescription).")
+                    print("Uploading error details: \(error.localizedDescription)")
+                    return
+                }
+                
+                /// pickedFileData contains the data of the file to be uploaded in the Firebase Cloud Storage.
+                guard let pickedFileData = maybeData else {return}
+                
+                // Uploading the picked file using its local temporary URL
+                /// Note: putData should be used instead of putFile in Extensions. (Note that here, PHPickerViewControllerDelegate is implemented as EXTENSION of HomeViewController).
+                /// Because using putFile, the app tries to access the file located in the local URL, but unfortunately (probably for security reasons), the file is not reacheable.
+                /// putData() asynchronously uploads data to the currently specified StorageReference. This is not recommended for large files, and one should instead upload a file from disk.
+
+                // TODO: P000, implement the uploadFileToCloudStorage() function.
+                /// uploadFileInCloudStorage() START
+                myStorageRef.child(fileStorageRoot).child(pickedFileNameWithExtension).putData(pickedFileData, metadata: pickedFileMetadata) { [self] maybeMetadata, maybeError in
+                    
+                    if let uploadingError = maybeError {
+                        AlertManager.showAlert(myTitle: "Upload error", myMessage: "Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
+                        print("Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let uploadedFileMetadata = maybeMetadata else {return}
+                    
+                    AlertManager.showAlert(myTitle: "File uploaded", myMessage: "Congratulations! The file \"\(pickedFileNameWithExtension)\" has been successfully uploaded in the cloud using the new process!")
+                    
+                    print("### Name of the picked local file (pickedFileNameWithExtension): \(pickedFileNameWithExtension)")
+                    print("### Metadata of the uploaded file stored in the cloud (uploadedFileMetadata): \(uploadedFileMetadata)")
+                    
+                    copyDataFromStorageToRealtimeDB()
+                    
+                    getFileNamesFromRealtimeDB()
+                } /// uploadFileInCloudStorage() END
             
-            /// Note: putData should be used instead of putFile in Extensions. (Note that here PHPickerViewControllerDelegate is implemented as EXTENSION of HomeViewController).
-            /// Because using putFile, the app try to access the file located in the local URL, but unfortunately (probably for security reasons), the file is not reacheable.
-//            myStorageRef.child(fileStorageRoot).child(pickedFileNameWithExtension).putFile(from: pickedFileURL, metadata: pickedFileMetadata) { [self] maybeMetadata, maybeError in
-//                
-//                if let uploadingError = maybeError {
-//                    AlertManager.showAlert(myTitle: "Upload error", myMessage: "Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
-//                    print("Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
-//                    return
-//                }
-//                
-//                guard let uploadedFileMetadata = maybeMetadata else {return}
-//                
-//                AlertManager.showAlert(myTitle: "File uploaded", myMessage: "The file \"\(pickedFileNameWithExtension)\" has been successfully uploaded in the cloud.")
-//                
-//                print("### Name of the picked local file (pickedFileNameWithExtension): \(pickedFileNameWithExtension)")
-//                print("### Metadata of the file stored in the cloud (uploadedFileMetadata): \(uploadedFileMetadata)")
-//                
-//                copyDataFromStorageToRealtimeDB()
-//                
-//                getFileNamesFromRealtimeDB()
-//            }
-        }
+            } /// END of fileProvider.loadDataRepresentation()
         
-        /// Loading file data contained in "fileProvider".
-        fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
-            
-            if let fileError = error {
-                AlertManager.showAlert(myTitle: "Error while uploading the file", myMessage: "It seems that the file you selected is not an image/photo.")
-                print("##### Error while uploading the file. It seems that the picked file is not an image/photo. Error details: \(fileError.localizedDescription)")
-                return
-            }
-            
-            // TODO: P0, Add code for also uploading video and any kind of media file stored in the gallery (Photos app).
-            
-            guard let pickedImage = wrappedFile as? UIImage else {
-                AlertManager.showAlert(myTitle: "Error", myMessage: "Error: Failed to cast the file as UIImage.")
-                print("##### Error: Failed to cast the file as UIImage.")
-                return
-            }
-            
-            DispatchQueue.main.sync {
-                uploadImageInCloudStorage(uIImageFile: pickedImage, fileName: pickedFileName)
-            }
-        }
+        } /// END of fileProvider.loadFileRepresentation()
+        
+        
+        /// Loading image/picture data contained in "fileProvider".
+        //        fileProvider.loadObject(ofClass: UIImage.self) { [self] wrappedFile, error in
+        //
+        //            if let fileError = error {
+        //                AlertManager.showAlert(myTitle: "Error while uploading the file", myMessage: "It seems that the file you selected is not an image/photo.")
+        //                print("##### Error while uploading the file. It seems that the picked file is not an image/photo. Error details: \(fileError.localizedDescription)")
+        //                return
+        //            }
+        //
+        //            // TODO: P0, Add code for also uploading video and any kind of media file stored in the gallery (Photos app).
+        //
+        //            guard let pickedImage = wrappedFile as? UIImage else {
+        //                AlertManager.showAlert(myTitle: "Error", myMessage: "Error: Failed to cast the file as UIImage.")
+        //                print("##### Error: Failed to cast the file as UIImage.")
+        //                return
+        //            }
+        //
+        //            DispatchQueue.main.sync {
+        //                uploadImageInCloudStorage(uIImageFile: pickedImage, fileName: pickedFileName)
+        //            }
+        //        }
         
         picker.dismiss(animated: true)
     }
