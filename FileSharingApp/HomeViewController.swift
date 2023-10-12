@@ -85,7 +85,7 @@ class HomeViewController: UIViewController {
         guard let userEmail = Auth.auth().currentUser?.email else {return}
         userEmailLabel.text = userEmail
         print("Message from Home View Controller: The current user is \(userEmail)")
-        
+                
         copyDataFromStorageToRealtimeDB() ///Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
         
         getFileNamesFromRealtimeDB()
@@ -118,8 +118,9 @@ class HomeViewController: UIViewController {
     private func copyDataFromStorageToRealtimeDB() {
         myStorageRef.child(fileStorageRoot).listAll { [self] result, error in
             if let unWrappedError = error {
-                AlertManager.showAlert(myTitle: "Error", myMessage: "Error while fetching the list of elements stored in Firebase Cloud Storage.")
-                print("Error details: \(unWrappedError)")
+                AlertManager.showAlert(myTitle: "Error", myMessage: "Error while fetching the list of elements stored in Firebase Cloud Storage. It seems that you don't have access to Firebase Cloud Storage.")
+                print("####### Error details: \(unWrappedError)")
+                return
             }
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
             guard let fileReferences = result?.items else {return} // Array of file references
@@ -194,13 +195,14 @@ class HomeViewController: UIViewController {
     
     @IBAction func didTapUpload(_ sender: UIButton) {
         
+        /// Creating an alert for choosing between actions "Upload from Gallery" and "Upload from Files"
         let uploadFileAlert = UIAlertController(title: "Upload a file", message: "Please choose the location of your file", preferredStyle: .alert)
         
         /// Upload Action #1: Upload an image or a video located in phone gallery (app "Photos")
         let uploadFromGalleryAction = UIAlertAction(title: "Upload from Gallery", style: .default) { [self] _ in
             
             var mediaPickerConfig = PHPickerConfiguration()
-            mediaPickerConfig.selectionLimit = 1
+            mediaPickerConfig.selectionLimit = 1  // TODO: Allow picking more than one file in the gallery for uploading...
                     
             /// Present a photo picker view controller that allows user to pick a media (photo or video)
             let mediaPickerVC = PHPickerViewController(configuration: mediaPickerConfig)
@@ -210,11 +212,17 @@ class HomeViewController: UIViewController {
             present(mediaPickerVC, animated: true)
         }
         
-        /// Upload Action #2: Upload a file located in the local app folder named "FileSharingApp"
-        let uploadFromFilesAction = UIAlertAction(title: "Upload from Files", style: .default) { _ in
-            // TODO: In the future, the app should be able to upload any kind of file (NOT only photos and videos)
-            // Creating an alert for choosing between actions "Media (Photos or Videos)" and "Other files"
+        // TODO: Upload Action #2: Upload a file located anywhere else in the phone (any kind of file accessible through the app "Files").
+        let uploadFromFilesAction = UIAlertAction(title: "Upload from Files", style: .default) { [self] _ in
             //let filePickerVC = UIDocumentPickerViewController(forExporting: .init())
+            
+            
+            let localFilesURLs = FileManager.default.urls(for: .userDirectory, in: .userDomainMask)
+            // TODO: Difference between ".userDirectory" and ".documentDirectory". Also look for "On My iPhone" specific URL...
+
+            
+            let filePickerVC = UIDocumentPickerViewController(forExporting: localFilesURLs, asCopy: true)
+            present(filePickerVC, animated: true)
         }
         
         uploadFileAlert.addAction(uploadFromGalleryAction)
@@ -254,7 +262,7 @@ extension HomeViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        ///Expression to be tested: let cell = UITableViewCell(style: .default, reuseIdentifier: "fileCell")
+        // TODO: Expression to be tested: let cell = UITableViewCell(style: .default, reuseIdentifier: "fileCell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "fileCell", for: indexPath)
         
         cell.textLabel?.text = realtimeFileList[indexPath.row].1
@@ -332,7 +340,7 @@ extension HomeViewController: UITableViewDelegate {
                 
                 /// In iOS, the user Document directory of this app has the same name as the app (in this case: "FileSharingApp").
                 /// To make that folder visible in iOS through the app "Files", I have added the parameters "Supports opening documents in place" and "Application supports iTunes file sharing" to the "Info.plist" file, and set both parameters to "YES".
-                let appDocumentFolderURL = localURLs[0] /// Get the url of the default local folder of this app ("FileSharingApp")
+                let appDocumentFolderURL = localURLs[0] /// Get the url of the default local folder / "Document directory" of this app (named in Files app "FileSharingApp")
                 
                 /// Created "downloadFileTask" to monitor and manage the download process. The app writes the downloaded files in the "appDocumentFolderURL" ()
                 let downloadFileTask = fileToDownloadRef.write(toFile: appDocumentFolderURL.appending(path: nameOfTheFileSelectedInHomeTableView)) { maybeURL, maybeError in
@@ -514,7 +522,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
                 
                 // Uploading the picked file using its local temporary URL
                 
-                // Do we need to use DispatchQueue.main.sync {} here???
+                // TODO: Do we need to use DispatchQueue.main.sync {} here??? To be tested...
                 uploadFileToCloudStorage(fileNameWithExtension: pickedFileNameWithExtension, fileData: pickedFileData, fileMetadata: pickedFileMetadata)
                 
                 /// Note: In the uploadFileToCloudStorage() function, putData should be used instead of putFile in Extensions. (Note that here, PHPickerViewControllerDelegate is implemented as EXTENSION of HomeViewController).
