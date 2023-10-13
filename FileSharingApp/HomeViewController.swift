@@ -16,6 +16,10 @@
 
 // 7- "preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
 
+// TODO: While moving from Login/Register to Home, destroy the Login/Register view controller (in Android finish() is used. Find the iOS equivalent method...)
+
+// TODO: Define static variables (Android Kotlin equivalent: companion object) to manage Firebase Authentication...
+
 // TODO: Add a button to access the folder of the downloaded files. (The files downloaded by this app, from Firebase cloud storage.)
 
 // TODO: Change printed messages to alert message for a better user experience (UX)... Used the Firebase predefined error messages.
