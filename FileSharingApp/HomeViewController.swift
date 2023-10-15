@@ -18,6 +18,8 @@
 
 // TODO: While moving from Login/Register to Home, destroy the Login/Register view controller (in Android finish() is used. Find the iOS equivalent method...)
 
+// TODO: Manage the Firebase security rules.
+
 // TODO: Define static variables (Android Kotlin equivalent: companion object) to manage Firebase Authentication...
 
 // TODO: Add a button to access the folder of the downloaded files. (The files downloaded by this app, from Firebase cloud storage.)
@@ -127,7 +129,7 @@ class HomeViewController: UIViewController {
                 return
             }
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
-            guard let fileReferences = result?.items else {return} // Array of file references
+            guard let fileReferences = result?.items else {return} // Array of file references, files stored in the Firebase Cloud Storage.
             setFileNamesInRealtimeDB(myFileList: fileReferences)
         }
         // fileList is EMPTY here (outside the listAll function)
@@ -135,6 +137,7 @@ class HomeViewController: UIViewController {
     
     /// This function cannot be directly called by the app, but ONLY by the function copyDataFromStorageToRealtimeDB() and can be ONLY used INSIDE the "listAll" function.
     private func setFileNamesInRealtimeDB(myFileList: [StorageReference]) {
+        // TODO: Add try...catch here, to throw an exception a trigger an alert when the app is not able to connect to the Realtime database.
         realtimeDbRef.child(realtimeDbRoot).removeValue() ///Deletes all the current values in realtime database to avoid duplication issues.
         for item in myFileList {
             ///childbyAutoId() generates a random unique key associated with each file name.
