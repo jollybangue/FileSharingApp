@@ -42,6 +42,8 @@
 
 // TODO: Include folder management (see folder list, create a new folder, rename a folder, delete a folder, ...)
 
+// TODO: Improve Alert/Toast management...
+
 // TODO: Try to delete all the files from the Home table view and see how it works.
 
 // TODO: Unit tests.
@@ -64,17 +66,17 @@ class HomeViewController: UIViewController {
     
     @IBOutlet weak var userEmailLabel: UILabel!
     
-    private let myStorageRef = Storage.storage().reference()    /// Firebase Cloud Storage reference of this app. Android Kotlin equivalent: private val myStorageRef = Firebase.storage.reference
-    private let fileStorageRoot = "FileSharingApp" /// Root of the app data in the Firebase Cloud Storage
+    private let myStorageRef = Storage.storage().reference()    /// Pointing to the Firebase Cloud Storage root folder. Android Kotlin equivalent: private val myStorageRef = Firebase.storage.reference
+    private let fileStorageRoot = "FileSharingApp" /// Root folder of the app data in the Firebase Cloud Storage.
     
-    private let realtimeDbRef = Database.database().reference() /// Realtime database reference
-    private let realtimeDbRoot = "FileSharingApp" /// Root of the project data in the Realtime database
+    private let realtimeDbRef = Database.database().reference() /// Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). Android Kotlin: private val realtimeDbRef = Firebase.database.reference
+    private let realtimeDbRoot = "FileSharingApp" /// Root folder of the app data in the Realtime database.
     
     // USELESS: private var fileList: [StorageReference] = [] // Array containing the references (names, paths, links) of the files stored in the Firebase cloud storage.
     // var folderList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
     
-    /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database...
-    private var realtimeFileList: [(String, String)] = []
+    /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database. realtimeFileList is used to feed the homeTableView.
+    private var realtimeLocalFileList: [(String, String)] = []
                 
     override func viewDidLoad() {
         
@@ -83,22 +85,26 @@ class HomeViewController: UIViewController {
         homeTableView.dataSource = self
         homeTableView.delegate = self
         
-        // Disable in the Navigation Controller the "Back to previous screen" button (located at the top left)
+        // Disable in the Navigation Controller the "Back to previous screen" button (located at the top left). TODO: Destroy the previous view controller.
         navigationItem.setHidesBackButton(true, animated: false)
+        
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        // I prefer NOT to show alerts here because it will also imply the management of if conditions
-        // The alerts are directly triggered from Register or Login view controllers.
+        // I prefer NOT to show alerts here because it will also imply the management of if conditions...
+        // The alerts are directly triggered from Register or Login view controllers. TODO: Check if it is the best way to proceed in iOS.
         
+        // TODO: Use static variables for everything related to Firebase Authentication.
         guard let userEmail = Auth.auth().currentUser?.email else {return}
         userEmailLabel.text = userEmail
         print("Message from Home View Controller: The current user is \(userEmail)")
                 
-        copyDataFromStorageToRealtimeDB() ///Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
+        copyDataFromStorageToRealtimeDB() /// Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
         
-        getFileNamesFromRealtimeDB()
+        getFileNamesFromRealtimeDB() /// Get and observe the file list stored in the Realtime Database.
+        
     }
     
+    /// Preparing segue for the next View Controllers.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         // Get the view controller ImageViewController using segue.destination.
@@ -111,10 +117,10 @@ class HomeViewController: UIViewController {
             }
         }
         
-        // Pass the elements of the selected object (tuple (String, Storage reference)) to the new view controller WebViewController.
+        // Get the view controller WebViewController using segue.destination.
         if let webVC = segue.destination as? WebViewController {
             
-            // Pass the selected object to the new view controller.
+            // Pass the elements of the selected object (tuple (String, Storage reference)) to the new view controller WebViewController.
             if let senderTuple = sender as? (String, StorageReference) {
                 webVC.selectedFileName = senderTuple.0
                 webVC.fileReference = senderTuple.1
@@ -132,29 +138,43 @@ class HomeViewController: UIViewController {
             }
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
             guard let fileReferences = result?.items else {return} // Array of file references, files stored in the Firebase Cloud Storage.
-            setFileNamesInRealtimeDB(myFileList: fileReferences)
+            
+            // setFileNamesInRealtimeDB(myFileList: fileReferences)
+            // TODO: Add try...catch here, to throw an exception a trigger an alert when the app is not able to connect to the Realtime database.
+            realtimeDbRef.child(realtimeDbRoot).removeValue() /// Deletes all the current values in realtime database app folder to avoid duplication issues.
+            var id = 1
+            for item in fileReferences {
+                ///childbyAutoId() generates a random unique key associated with each file name.
+                //realtimeDbRef.child(realtimeDbRoot).childByAutoId().setValue(item.name) /// Writing file names get from Firebase cloud storage into Firebase Realtime database.
+                
+                realtimeDbRef.child(realtimeDbRoot).child("id0\(id)").setValue(item.name)
+                id+=1
+            }
         }
         // fileList is EMPTY here (outside the listAll function)
     }
     
     /// This function takes a list of fileReferences (array of StorageReference objects) from the Firebase Cloud Storage, then extracts and stores the name of each file in the Realtime database, with an associate unique ID. NOTE: This function cannot be directly called by the app, but ONLY by the function copyDataFromStorageToRealtimeDB() and can be ONLY used INSIDE the "listAll" function.
-    private func setFileNamesInRealtimeDB(myFileList: [StorageReference]) {
-        // TODO: Add try...catch here, to throw an exception a trigger an alert when the app is not able to connect to the Realtime database.
-        realtimeDbRef.child(realtimeDbRoot).removeValue() ///Deletes all the current values in realtime database to avoid duplication issues.
-        for item in myFileList {
-            ///childbyAutoId() generates a random unique key associated with each file name.
-            realtimeDbRef.child(realtimeDbRoot).childByAutoId().setValue(item.name)
-        }
-    }
+//    private func setFileNamesInRealtimeDB(myFileList: [StorageReference]) {
+//        // TODO: Add try...catch here, to throw an exception a trigger an alert when the app is not able to connect to the Realtime database.
+//        realtimeDbRef.child(realtimeDbRoot).removeValue() /// Deletes all the current values in realtime database app folder to avoid duplication issues.
+//        for item in myFileList {
+//            ///childbyAutoId() generates a random unique key associated with each file name.
+//            realtimeDbRef.child(realtimeDbRoot).childByAutoId().setValue(item.name)
+//        }
+//    }
     
     /// This function allows the app to get and observe in realtime, the name of the files stored in the Firebase cloud storage.
     private func getFileNamesFromRealtimeDB() {
         realtimeDbRef.child(realtimeDbRoot).observe(.value) { [self] fileListSnapshot in
             guard let currentFileList = fileListSnapshot.value as? [String: String] else {return}
-            realtimeFileList.removeAll() ///Deletes all values stored in realtimeFileList to avoid duplication issues.
-            let sortedFileList = currentFileList.sorted{$0.0 < $1.0} ///Sorts by order the items stored in the currentFileList dictionnary and put them into sortedFileList
+            realtimeLocalFileList.removeAll() ///Deletes all values stored in realtimeFileList to avoid duplication issues.
+            // let sortedFileList = currentFileList.sorted{$0.0 < $1.0} ///Sorts by order the items stored in the currentFileList dictionnary and put them into sortedFileList
+            /// It is VERY IMPORTANT to sort elements inside the array currentFileList. Otherwise, the files will be shown randomly inside the iOS app and inside the Firebase Realtime Database terminal.
+            let sortedFileList = currentFileList.sorted{$0.0<$1.0} // Meaning that 00<10, 01<11, 02<12, 03<13, ...
+            
             for (key, item) in sortedFileList {
-                realtimeFileList.append((key, item))
+                realtimeLocalFileList.append((key, item))
             }
             homeTableView.reloadData()
         }
@@ -163,12 +183,16 @@ class HomeViewController: UIViewController {
     
     /// This function delete permanently from the Firebase Cloud Storage a file given its name.
     private func deleteFileFromCloudStorage(nameOfTheFile: String) {
+        
         myStorageRef.child(fileStorageRoot).child(nameOfTheFile).delete { [self] error in
+            
             if let fileDeletionError = error {
                 AlertManager.showAlert(myTitle: "File deletion error", myMessage: "Something went wrong while deleting the file \"\(nameOfTheFile)\".\nError: \(fileDeletionError)")
             } else {
-                copyDataFromStorageToRealtimeDB() ///Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
-                getFileNamesFromRealtimeDB()
+                
+                copyDataFromStorageToRealtimeDB() /// Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
+                getFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
+                
                 AlertManager.showAlert(myTitle: "File deleted", myMessage: "The file \"\(nameOfTheFile)\" has been succesfully deleted from the cloud.")
             }
         }
@@ -198,7 +222,7 @@ class HomeViewController: UIViewController {
             
             copyDataFromStorageToRealtimeDB()
             
-            getFileNamesFromRealtimeDB()
+            getFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
         }
     }
     
@@ -267,14 +291,14 @@ class HomeViewController: UIViewController {
 extension HomeViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return realtimeFileList.count
+        return realtimeLocalFileList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: Expression to be tested: let cell = UITableViewCell(style: .default, reuseIdentifier: "fileCell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "fileCell", for: indexPath)
         
-        cell.textLabel?.text = realtimeFileList[indexPath.row].1
+        cell.textLabel?.text = realtimeLocalFileList[indexPath.row].1
         cell.textLabel?.adjustsFontSizeToFitWidth = true
         cell.textLabel?.font = UIFont.systemFont(ofSize: 12)
         return cell
@@ -288,7 +312,7 @@ extension HomeViewController: UITableViewDelegate {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let nameOfTheFileSelectedInHomeTableView: String = realtimeFileList[indexPath.row].1
+        let nameOfTheFileSelectedInHomeTableView: String = realtimeLocalFileList[indexPath.row].1
         
         /// And all the information needed by the application should be get from the Realtime database.
         /// It is better to proceed like that because is not possible to access informations like metadata or file list outside the Cloud Storage functions getMetadata and listAll.
@@ -429,7 +453,7 @@ extension HomeViewController: UITableViewDelegate {
     /// Implementing a swipe action for deleting a selected file
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let fileToBeDeleted: String = realtimeFileList[indexPath.row].1
+        let fileToBeDeleted: String = realtimeLocalFileList[indexPath.row].1
         
         let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(fileToBeDeleted) from the cloud?", preferredStyle: .alert)
         

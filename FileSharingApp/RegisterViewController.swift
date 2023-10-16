@@ -85,7 +85,7 @@ class RegisterViewController: UIViewController {
             
             /// Handling successfull registration
             self?.performSegue(withIdentifier: "registerToHomeScreen", sender: (Any).self)
-            AlertManager.showAlert(myTitle: "Account created successfully", myMessage: "Welcome \(userEmail)")
+            AlertManager.showAlert(myTitle: "Account created successfully", myMessage: "Welcome \(userEmail).\nWe hope you will enjoy this File Sharing App!")
             self?.clearRegisterTextFields()
         }
     }
