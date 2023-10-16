@@ -40,6 +40,8 @@
 
 // TODO: Implement the "Rename file" functionality...
 
+// TODO: Include folder management (see folder list, create a new folder, rename a folder, delete a folder, ...)
+
 // TODO: Try to delete all the files from the Home table view and see how it works.
 
 // TODO: Unit tests.
@@ -62,8 +64,8 @@ class HomeViewController: UIViewController {
     
     @IBOutlet weak var userEmailLabel: UILabel!
     
-    private let myStorageRef = Storage.storage().reference()    /// Firebase Cloud Storage refence
-    private let fileStorageRoot = "FileSharingApp" /// Root of the project data in the Firebase Cloud Storage
+    private let myStorageRef = Storage.storage().reference()    /// Firebase Cloud Storage reference of this app. Android Kotlin equivalent: private val myStorageRef = Firebase.storage.reference
+    private let fileStorageRoot = "FileSharingApp" /// Root of the app data in the Firebase Cloud Storage
     
     private let realtimeDbRef = Database.database().reference() /// Realtime database reference
     private let realtimeDbRoot = "FileSharingApp" /// Root of the project data in the Realtime database
@@ -120,7 +122,7 @@ class HomeViewController: UIViewController {
         }
     }
     
-    /// This function get the list of files stored in the Firebase cloud storage and save it into the Realtime database using the setFileNamesInRealtimeDB() function.
+    /// This function gets the list of files stored in the Firebase cloud storage and save it into the Realtime database using the setFileNamesInRealtimeDB() function.
     private func copyDataFromStorageToRealtimeDB() {
         myStorageRef.child(fileStorageRoot).listAll { [self] result, error in
             if let unWrappedError = error {
@@ -135,7 +137,7 @@ class HomeViewController: UIViewController {
         // fileList is EMPTY here (outside the listAll function)
     }
     
-    /// This function cannot be directly called by the app, but ONLY by the function copyDataFromStorageToRealtimeDB() and can be ONLY used INSIDE the "listAll" function.
+    /// This function takes a list of fileReferences (array of StorageReference objects) from the Firebase Cloud Storage, then extracts and stores the name of each file in the Realtime database, with an associate unique ID. NOTE: This function cannot be directly called by the app, but ONLY by the function copyDataFromStorageToRealtimeDB() and can be ONLY used INSIDE the "listAll" function.
     private func setFileNamesInRealtimeDB(myFileList: [StorageReference]) {
         // TODO: Add try...catch here, to throw an exception a trigger an alert when the app is not able to connect to the Realtime database.
         realtimeDbRef.child(realtimeDbRoot).removeValue() ///Deletes all the current values in realtime database to avoid duplication issues.
