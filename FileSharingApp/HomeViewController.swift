@@ -162,6 +162,7 @@ class HomeViewController: UIViewController {
     
     /// This function allows the app to get and observe in realtime, the name of the files stored in the Firebase cloud storage.
     private func getFileNamesFromRealtimeDB() {
+        
         realtimeDbRef.child(realtimeDbRoot).observe(.value) { [self] fileListSnapshot in
             guard let currentFileList = fileListSnapshot.value as? [String: String] else {return}
             realtimeLocalFileList.removeAll() ///Deletes all values stored in realtimeFileList to avoid duplication issues.
@@ -173,7 +174,23 @@ class HomeViewController: UIViewController {
                 realtimeLocalFileList.append((key, item))
             }
             homeTableView.reloadData()
+            
+        } withCancel: { error in
+            AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: "Details: \(error.localizedDescription)")
         }
+
+//        realtimeDbRef.child(realtimeDbRoot).observe(.value) { [self] fileListSnapshot in
+//            guard let currentFileList = fileListSnapshot.value as? [String: String] else {return}
+//            realtimeLocalFileList.removeAll() ///Deletes all values stored in realtimeFileList to avoid duplication issues.
+//            /// It is VERY IMPORTANT to sort elements inside the array currentFileList. Otherwise, the files will be shown randomly inside the iOS app and inside the Firebase Realtime Database terminal.
+//            let sortedFileList = currentFileList.sorted(by: <) // Sorting items from the smallest id to the highest id.
+//            //let sortedFileList = currentFileList.sorted{$0.0 < $1.0} // Samir's code...
+//            
+//            for (key, item) in sortedFileList {
+//                realtimeLocalFileList.append((key, item))
+//            }
+//            homeTableView.reloadData()
+//        }
         // realtimeFileList is EMPTY here (outside the observe() function). We can't do anything outside the observe function.
     }
     
