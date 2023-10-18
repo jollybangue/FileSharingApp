@@ -32,6 +32,8 @@
 
 // TODO: Improve the "Share file" function.
 
+// TODO: Check if the error while connecting to the Firebase cloud storage is handled.
+
 // TODO: Implement observers for all upload and download tasks.
 
 // TODO: Manage upload and download duplications (to avoid uploading or downloading the same file many times.)
