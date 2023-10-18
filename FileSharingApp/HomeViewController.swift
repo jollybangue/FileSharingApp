@@ -16,6 +16,10 @@
 
 // 7- "preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
 
+// TODO: Releasing version 1.0. Notes/Tasks: 1- Improve Firebase Authentication: destroy the previous Login/Register View Controllers, Provide appropriate error handling for login and registration processes, improve error/user messages., 2- Implement the remaining feature Upload from Files, 3- Publish on GitHub and remove irrelevant comments (TODOs, personnal notes, ...), remove all print() statements, also remove all Firebase accesses (by deleting "GoogleService-Info.plist" file?).
+
+// TODO: Improve Firebase Realtime Database resources management, to allow many (hundreds or thousands) users to connect at the same time. The realtime database should not be entirely deleted anymore when a new iOS or Android is launching... For more complex queries (involving data with more than just a key/value pair), use Firestore realtime features instead. For sorting purposes, see if it is possible to use a TreeMap...
+
 // TODO: While moving from Login/Register to Home, destroy the Login/Register view controller (in Android finish() is used. Find the iOS equivalent method...)
 
 // TODO: Manage the Firebase security rules.
@@ -46,7 +50,7 @@
 
 // TODO: Improve Alert/Toast management...
 
-// TODO: Manage sorting files (by id, by name, by size, ...). By default, the files shown in the app are in the same order than the files in the cloud storage, and they sorted by increasing order (from small to higher, id1001, id1002, id1003, ...) of the ids in the realtime database.
+// TODO: Manage sorting files (by id, by name, by size, ...). By default, the files shown in the app are in the same order than the files in the cloud storage, and they sorted by increasing order (from small to higher, id1001, id1002, id1003, ...) of the ids in the realtime database. In that case, Firebase Firestore must be used instead of Realtime database.
 
 // TODO: Try to delete all the files from the Home table view and see how it works.
 
@@ -70,11 +74,17 @@ class HomeViewController: UIViewController {
     
     @IBOutlet weak var userEmailLabel: UILabel!
     
-    private let myStorageRef = Storage.storage().reference()    /// Pointing to the Firebase Cloud Storage root folder. Android Kotlin equivalent: private val myStorageRef = Firebase.storage.reference
-    private let fileStorageRoot = "FileSharingApp" /// Root folder of the app data in the Firebase Cloud Storage.
+    /// Pointing to the Firebase Cloud Storage root folder. Android Kotlin equivalent: private val myStorageRef = Firebase.storage.reference
+    private let myStorageRef = Storage.storage().reference()
     
-    private let realtimeDbRef = Database.database().reference() /// Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). Android Kotlin: private val realtimeDbRef = Firebase.database.reference
-    private let realtimeDbRoot = "FileSharingApp" /// Root folder of the app data in the Realtime database.
+    /// Root folder of the app data in the Firebase Cloud Storage.
+    private let fileStorageRoot = "FileSharingApp"
+    
+    /// Pointing to the Firebase Realtime Database root node (It is the Realtime database reference). Android Kotlin: private val realtimeDbRef = Firebase.database.reference
+    private let realtimeDbRef = Database.database().reference()
+    
+    /// Root folder of the app data in the Realtime database.
+    private let realtimeDbRoot = "FileSharingApp"
     
     // USELESS: private var fileList: [StorageReference] = [] // Array containing the references (names, paths, links) of the files stored in the Firebase cloud storage.
     // var folderList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
@@ -104,7 +114,7 @@ class HomeViewController: UIViewController {
                 
         copyDataFromStorageToRealtimeDB() /// Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
         
-        getFileNamesFromRealtimeDB() /// Get and observe the file list stored in the Realtime Database.
+        getAndObserveFileNamesFromRealtimeDB() /// Get and observe the file list stored in the Realtime Database.
         
     }
     
@@ -145,25 +155,49 @@ class HomeViewController: UIViewController {
             
             // setting file names in Realtime Database.
             // TODO: Add try...catch here, to throw an exception a trigger an alert when the app is not able to connect to the Realtime database.
-            realtimeDbRef.child(realtimeDbRoot).removeValue() /// Deletes all the current values in realtime database app folder to avoid duplication issues.
+            // TODO: Realtime resource management OPTIMIZATION - App Launching (Check if it is also valid for "Upload a new file" and "Delete a file"): Add an IF statement here to remove all the data from the Realtime Database ONLY when the Cloud Storage File List is different from the Realtime Database File List. So we need to COMPARE the Storage File List vs the Realtime File List. For now, comparing the number of elements in the Cloud Storage and the number of elements in the Realtime database is enough (assuming that the admin will never try to edit the filenames directly in the Realtime database terminal). Later I can add some code for checking the integrity of the Realtime database (check if any single value from the Cloud storage list matches with each value in the Realtime database. So number of element check + key/value check)
+            //TODO: I can use value(forKey) and setValue(forKey)
             
-            var id = 1000 /// Initializing the file id which will be used to store the file in the Realtime database. With id = 10, we have ids from 10 to 99; With id = 100, we have ids from 100 to 999; With id = 1000, we have ids from 1000 to 9999.
-            for item in fileReferences {
+            /// Getting the number of files in the Cloud Storage
+            let numberOfilesInCloudStorage = fileReferences.count
+            
+            /// Getting the number of files currently registered in the Realtime Database
+            realtimeDbRef.child(realtimeDbRoot).getData { [self] error, snapshot in
+                if let error {
+                    AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: "Details: \(error.localizedDescription)")
+                    return
+                }
+                guard let numberOfFilesInRealtimeDB = snapshot?.childrenCount else { print("ERROR!!!");return}
                 
-                ///childbyAutoId() generates a random unique key associated with each file name.
-                //realtimeDbRef.child(realtimeDbRoot).childByAutoId().setValue(item.name) /// Writing file names get from Firebase cloud storage into Firebase Realtime database, with ids generated randomly.
-                
-                /// Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1000, Max: id9999, Total: 9000 potential ids.
-                realtimeDbRef.child(realtimeDbRoot).child("id\(id)").setValue(item.name)
-                /// Generating my own ids instead of using random ids generated by childByAutoId() will allow the Android version of this app to use the same Realtime database (since childbyAutoId() doesn't exist in Android Kotlin). I must implement the same id manager, with the same rules, in the Android app.
-                id += 1 // Incrementing the id.
+                print("INITIALIZATION: Number of files in Firebase Cloud Storage: \(numberOfilesInCloudStorage)")
+                print("INITIALIZATION: Number of files in Realtime Database: \(numberOfFilesInRealtimeDB)")
+                                
+                if numberOfFilesInRealtimeDB != numberOfilesInCloudStorage {
+                    // Reinitialization and update of the Realtime Database.
+                    print("numberOfilesInCloudStorage IS NOT equal to numberOfFilesInRealtimeDB. *** PROCESSING REALTIME DATABASE REINITIALIZATION AND UPDATE ***")
+                    
+                    realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
+                    
+                    var id = 1000 // Initializing the file id which will be used to store the file in the Realtime database. With id = 10, we have ids from 10 to 99; With id = 100, we have ids from 100 to 999; With id = 1000, we have ids from 1000 to 9999.
+                    for item in fileReferences {
+                        //childbyAutoId() generates a random unique key associated with each file name.
+                        //realtimeDbRef.child(realtimeDbRoot).childByAutoId().setValue(item.name) /// Writing file names get from Firebase cloud storage into Firebase Realtime database, with ids generated randomly.
+                        
+                        // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1000, Max: id9999, Total: 9000 potential ids.
+                        realtimeDbRef.child(realtimeDbRoot).child("id\(id)").setValue(item.name)
+                        
+                        // Generating my own ids instead of using random ids generated by childByAutoId() will allow the Android version of this app to use the same Realtime database (since childbyAutoId() doesn't exist in Android Kotlin). I must implement the same id manager, with the same rules, in the Android app.
+                        id += 1 // Incrementing the id.
+                    }
+                } else {
+                    print("numberOfilesInCloudStorage is equal to numberOfFilesInRealtimeDB. No need to reinitialize and update the Realtime Database...")
+                }
             }
-        }
-        // fileList is EMPTY here (outside the listAll function)
-    }
+        } // END ListAll()
+    } // END copyDataFromStorageToRealtimeDB()
     
     /// This function allows the app to get and observe in realtime, the name of the files stored in the Firebase cloud storage.
-    private func getFileNamesFromRealtimeDB() {
+    private func getAndObserveFileNamesFromRealtimeDB() {
         
         realtimeDbRef.child(realtimeDbRoot).observe(.value) { [self] fileListSnapshot in
             guard let currentFileList = fileListSnapshot.value as? [String: String] else {return}
@@ -179,6 +213,7 @@ class HomeViewController: UIViewController {
             
         } withCancel: { error in
             AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: "Details: \(error.localizedDescription)")
+            return
         }
 
 //        realtimeDbRef.child(realtimeDbRoot).observe(.value) { [self] fileListSnapshot in
@@ -206,7 +241,7 @@ class HomeViewController: UIViewController {
             } else {
                 
                 copyDataFromStorageToRealtimeDB() /// Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
-                getFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
+                //getAndObserveFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
                 
                 AlertManager.showAlert(myTitle: "File deleted", myMessage: "The file \"\(nameOfTheFile)\" has been succesfully deleted from the cloud.")
             }
@@ -237,7 +272,7 @@ class HomeViewController: UIViewController {
             
             copyDataFromStorageToRealtimeDB()
             
-            getFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
+            //getAndObserveFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
         }
     }
     
@@ -512,6 +547,7 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         
         guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
         
+        ///"preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
         guard let pickedFileContentTypeName = pickedFileType.preferredMIMEType else {return}
         
         guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return}
