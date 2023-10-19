@@ -23,7 +23,5 @@ class AlertManager {
         
         myRootViewController?.present(alertController, animated: true)
     }
-    
-    //class func confirmationAlert() {} I can define it later, to manage multiple confirmation alerts.
-    
+        
 }

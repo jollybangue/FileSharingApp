@@ -18,25 +18,9 @@ class LoginViewController: UIViewController {
         
         /// Disable in the Navigation Controller the "Back to previous screen" button (located at the top left)
         navigationItem.setHidesBackButton(true, animated: false)
+        
+        navigationController?.navigationBar.prefersLargeTitles = true
 
-    }
-    
-    /// Is "prepare for segue necessary in this case?"
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-//        if let myHomeVC = segue.destination as? HomeViewController {
-//
-//            // Pass the selected object to the new view controller.
-//            if let extractedUserName = sender as? String {
-//                myHomeVC.username = extractedUserName
-//            }
-//        }
-    }
-    
-    /// This function clear the textfields of the Login screen when moving to another screen.
-    func clearLoginTextFields() {
-        loginEmailTextField.text = ""
-        loginPasswordTextField.text = ""
     }
 
     @IBAction func didTapSignIn(_ sender: UIButton) {
@@ -53,33 +37,12 @@ class LoginViewController: UIViewController {
             
             /// Handling login errors
             if let error = maybeError {
-                let authenticationErrorCode = AuthErrorCode.Code(rawValue: error._code)
-                
-                // TODO: Instead of listing different cases, try just to extract the default error message thrown by Firebase Auth.
-                
-                switch authenticationErrorCode {
-
-                case .invalidEmail:
-                    AlertManager.showAlert(myTitle: "Login Failed", myMessage: "The email address is not valid")
-
-                case .wrongPassword:
-                    AlertManager.showAlert(myTitle: "Login Failed", myMessage: "The password is not correct")
-
-                case .userNotFound:
-                    AlertManager.showAlert(myTitle: "Login Failed", myMessage: "There is no account for this email id")
-
-                case .userDisabled:
-                    AlertManager.showAlert(myTitle: "Login Failed", myMessage: "Your account has been disabled")
-
-                default:
-                    AlertManager.showAlert(myTitle: "Login Failed", myMessage: "Please check your email and password")
-                }
-                
+                AlertManager.showAlert(myTitle: "Login Error", myMessage: error.localizedDescription)
                 return
             }
             
             /// Extraction of the user email
-            guard let userEmail = Auth.auth().currentUser?.email else {
+            guard let userEmail = Auth.auth().currentUser?.email else { // TODO: Save the user email in a static variable
                 /// Printing a message test in console just for debugging
                 print("Message from Login View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
                 return
@@ -89,14 +52,18 @@ class LoginViewController: UIViewController {
             print("Message from Login View Controller: The current user is \(userEmail)")
             
             /// Handling successfull login
-            self?.performSegue(withIdentifier: "loginToHome", sender: (Any).self)
+            self?.performSegue(withIdentifier: "loginToHome", sender: self)
             AlertManager.showAlert(myTitle: "Welcome", myMessage: "Welcome \(userEmail)")
-            self?.clearLoginTextFields()
         }
     }
     
     @IBAction func didTapGoToRegister(_ sender: UIButton) {
-        performSegue(withIdentifier: "loginToRegister", sender: (Any).self)
-        clearLoginTextFields()
+        /// Moving to RegisterViewController
+        performSegue(withIdentifier: "loginToRegister", sender: self) // There is no need to prepare the segue with override func prepare(for segue: UIStoryboardSegue, sender: Any?) {}
+        
+        /// Destroying the current view controller (LoginViewController). In that way, being in the new view controller (RegisterViewController), it will not be possible to back to this view controller (LoginViewController).
+        willMove(toParent: nil)
+        view.removeFromSuperview()
+        removeFromParent()
     }
 }

@@ -21,7 +21,7 @@ class ImageViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+                
         navigationItem.title = selectedFileName
         
         guard let fileRef = fileReference else {

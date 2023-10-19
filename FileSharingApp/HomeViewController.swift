@@ -69,6 +69,9 @@ import FirebaseStorage
 import FirebaseDatabase
 
 class HomeViewController: UIViewController {
+    
+    /// Definition of static variables to be used for authentication purposes.
+    //static var appAuth: FirebaseAuth
         
     @IBOutlet weak var homeTableView: UITableView!
     
@@ -86,7 +89,6 @@ class HomeViewController: UIViewController {
     /// Root folder of the app data in the Realtime database.
     private let realtimeDbRoot = "FileSharingApp"
     
-    // USELESS: private var fileList: [StorageReference] = [] // Array containing the references (names, paths, links) of the files stored in the Firebase cloud storage.
     // var folderList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
     
     /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database. realtimeFileList is used to feed the homeTableView.
@@ -100,12 +102,9 @@ class HomeViewController: UIViewController {
         homeTableView.delegate = self
         
         // Disable in the Navigation Controller the "Back to previous screen" button (located at the top left). TODO: Destroy the previous view controller.
-        navigationItem.setHidesBackButton(true, animated: false)
+        navigationItem.setHidesBackButton(false, animated: false)
         
-        navigationController?.navigationBar.prefersLargeTitles = true
-        
-        // I prefer NOT to show alerts here because it will also imply the management of if conditions...
-        // The alerts are directly triggered from Register or Login view controllers. TODO: Check if it is the best way to proceed in iOS.
+        //navigationController?.navigationBar.prefersLargeTitles = true
         
         // TODO: Use static variables for everything related to Firebase Authentication.
         guard let userEmail = Auth.auth().currentUser?.email else {return}
@@ -315,16 +314,23 @@ class HomeViewController: UIViewController {
 
     }
     
+    /// Signing out and back to LoginViewController
     @IBAction func didTapSignOut(_ sender: UIButton) {
-        
+        // TODO: Add userEmail in the confirmation alert.
         let confirmationAlert = UIAlertController(title: "Confirmation", message: "Do you want to sign out?", preferredStyle: .alert)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         
-        let signOutAction = UIAlertAction(title: "Sign Out", style: .destructive) { _ in
+        let signOutAction = UIAlertAction(title: "Sign Out", style: .destructive) { [self] _ in
             do {
                 try Auth.auth().signOut() ///Signing out
-                self.performSegue(withIdentifier: "homeToLogin", sender: (Any).self)
+                performSegue(withIdentifier: "homeToLogin", sender: self)
+                
+                /// Destroying the current view controller (HomeViewController). In that way, being in the new view controller (LoginViewController), it will not be possible to back to this view controller (HomeViewController).
+                willMove(toParent: nil)
+                view.removeFromSuperview()
+                removeFromParent()
+                
             } catch (let error) {
                 AlertManager.showAlert(myTitle: "Signing out failed", myMessage: error.localizedDescription)
             }

@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Create a new account-->
+        <!--Create a New Account-->
         <scene sceneID="Y9R-af-XBW">
             <objects>
                 <viewController storyboardIdentifier="RegisterVC" id="5gv-Rl-scl" customClass="RegisterViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -68,7 +68,7 @@
                             <constraint firstItem="HXM-j6-uD8" firstAttribute="centerX" secondItem="pPh-xw-5BY" secondAttribute="centerX" id="UJJ-Fl-xBE"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Create a new account" id="TDh-8r-sXQ"/>
+                    <navigationItem key="navigationItem" title="Create a New Account" id="TDh-8r-sXQ"/>
                     <connections>
                         <outlet property="registerEmailTextField" destination="57m-P2-uud" id="GTl-TB-Pkn"/>
                         <outlet property="registerPasswordTextField" destination="dZe-wP-Bf7" id="zWu-XQ-4ik"/>
@@ -80,7 +80,7 @@
             </objects>
             <point key="canvasLocation" x="927" y="844"/>
         </scene>
-        <!--Login-->
+        <!--Existing Account-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController storyboardIdentifier="LoginVC" id="BYZ-38-t0r" customClass="LoginViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -139,7 +139,7 @@
                             <constraint firstItem="KYs-7y-7c2" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="100" id="B6Y-sF-lh0"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Login" id="IEX-Om-sfn"/>
+                    <navigationItem key="navigationItem" title="Existing Account" id="IEX-Om-sfn"/>
                     <connections>
                         <outlet property="loginEmailTextField" destination="9RV-5p-K8s" id="XEv-b3-uQx"/>
                         <outlet property="loginPasswordTextField" destination="vfK-Uh-xhz" id="pe4-9b-vCv"/>
@@ -151,10 +151,10 @@
             </objects>
             <point key="canvasLocation" x="929" y="4"/>
         </scene>
-        <!--Files in the cloud-->
+        <!--HomeVC-->
         <scene sceneID="llL-X9-Zbp">
             <objects>
-                <viewController storyboardIdentifier="HomeVC" id="DQg-Ij-k0d" customClass="HomeViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HomeVC" title="HomeVC" id="DQg-Ij-k0d" customClass="HomeViewController" customModule="FileSharingApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lml-oK-Aka">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -232,7 +232,7 @@
                             <constraint firstItem="Jp7-Qh-w9o" firstAttribute="trailing" secondItem="qPp-PS-7Ax" secondAttribute="trailing" constant="18" id="oOf-Q6-EVr"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Files in the cloud" id="XAs-vt-mdO"/>
+                    <navigationItem key="navigationItem" title="Files in Cloud Storage" id="XAs-vt-mdO"/>
                     <connections>
                         <outlet property="homeTableView" destination="740-cp-rmJ" id="mOc-q5-tDy"/>
                         <outlet property="userEmailLabel" destination="vhc-cm-q7a" id="uFG-N0-viH"/>
@@ -243,7 +243,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3TV-IE-iB5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1885" y="4"/>
+            <point key="canvasLocation" x="1776" y="4"/>
         </scene>
         <!--Image View Controller-->
         <scene sceneID="GvY-XA-hDi">
@@ -338,7 +338,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -19,29 +19,33 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         //guard let _ = (scene as? UIWindowScene) else { return }
         
-        /// With the code below, if the user is already logged in to the server, they will directly get the Home Screen when launching the app
+        /// With the code below, if the user is already logged in to the server, they will directly get the Home Screen when launching the app.
         /// If the user is not yet logged in, they will get the Login Screen when launching the app.
         guard let windowScene = scene as? UIWindowScene else {return}
         
+        var myCurrentUser = Auth.auth().currentUser
+        
+        
+        if myCurrentUser != nil { // TODO: Use if let instead...
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let navigationController = storyboard.instantiateInitialViewController() as? UINavigationController
+            let myHomeViewController = storyboard.instantiateViewController(withIdentifier: "HomeVC") as UIViewController
+            navigationController?.viewControllers = [myHomeViewController]
+            let window = UIWindow(windowScene: windowScene)
+            window.rootViewController = navigationController
+            self.window = window
+            window.makeKeyAndVisible()
+            print("The value of Auth.auth().currentUser IS NOT NIL. VALUE: \(myCurrentUser)")
+            
+        } else {
+            print("The value of Auth.auth().currentUser should be nil. VALUE: \(myCurrentUser)")
+        }
+        
         Auth.auth().addStateDidChangeListener { _, currentUser in
-            if currentUser != nil {
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let navigationController = storyboard.instantiateInitialViewController() as? UINavigationController
-                let myRootViewController = storyboard.instantiateViewController(withIdentifier: "HomeVC") as UIViewController
-                navigationController?.viewControllers = [myRootViewController]
-                let window = UIWindow(windowScene: windowScene)
-                window.rootViewController = navigationController
-                self.window = window
-                window.makeKeyAndVisible()
-                
-            }
-            guard let userEmail = currentUser?.email else {
-                /// Printing a message test in console just for debugging
-                print("Message from SceneDelegate: The current logged in user is \(String(describing: currentUser?.email))")
-                return
-            }
+
+            guard let userEmail = currentUser?.email else {return}
             /// Printing a message test in console just for debugging
-            print("Message from SceneDelegate: Welcome \(userEmail)")
+            print("Message from SceneDelegate (using Auth.auth().addStateDidChangeListener): The current logged in user is \(userEmail)")
             
         }
 
