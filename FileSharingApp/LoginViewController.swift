@@ -33,31 +33,29 @@ class LoginViewController: UIViewController {
         }
         
         /// Managing the authentication and login of an existing user, by using the Firebase Authentication feature.
-        Auth.auth().signIn(withEmail: email, password: password) { [weak self] _, maybeError in
+        Auth.auth().signIn(withEmail: email, password: password) { [self] _, maybeError in
             
-            /// Handling login errors
+            /// Handling login errors.
             if let error = maybeError {
                 AlertManager.showAlert(myTitle: "Login Error", myMessage: error.localizedDescription)
                 return
             }
             
-            /// Extraction of the user email
-            guard let userEmail = Auth.auth().currentUser?.email else { // TODO: Save the user email in a static variable
-                /// Printing a message test in console just for debugging
-                print("Message from Login View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
-                return
-            }
-            
-            /// Printing a message test in console just for debugging
-            print("Message from Login View Controller: The current user is \(userEmail)")
-            
-            /// Handling successfull login
-            self?.performSegue(withIdentifier: "loginToHome", sender: self)
-            AlertManager.showAlert(myTitle: "Welcome", myMessage: "Welcome \(userEmail)")
+            /// Handling successfull login.
+            print("Login successful. Moving to Home Screen...")
+            performSegue(withIdentifier: "loginToHome", sender: self)
+            // No need to put a Login Successful alert
+                        
+            /// Destroying the current view controller (LoginViewController). In that way, being in the new view controller (HomeViewController), it will not be possible to back to this view controller (LoginViewController).
+            willMove(toParent: nil)
+            view.removeFromSuperview()
+            removeFromParent()
+
         }
     }
     
     @IBAction func didTapGoToRegister(_ sender: UIButton) {
+        
         /// Moving to RegisterViewController
         performSegue(withIdentifier: "loginToRegister", sender: self) // There is no need to prepare the segue with override func prepare(for segue: UIStoryboardSegue, sender: Any?) {}
         
@@ -66,4 +64,5 @@ class LoginViewController: UIViewController {
         view.removeFromSuperview()
         removeFromParent()
     }
+    
 }

@@ -16,19 +16,9 @@
 
 // 7- "preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
 
-// TODO: Releasing version 1.0. Notes/Tasks: 1- Improve Firebase Authentication: destroy the previous Login/Register View Controllers, Provide appropriate error handling for login and registration processes, improve error/user messages., 2- Implement the remaining feature Upload from Files, 3- Publish on GitHub and remove irrelevant comments (TODOs, personnal notes, ...), remove all print() statements, also remove all Firebase accesses (by deleting "GoogleService-Info.plist" file?).
-
-// TODO: Improve Firebase Realtime Database resources management, to allow many (hundreds or thousands) users to connect at the same time. The realtime database should not be entirely deleted anymore when a new iOS or Android is launching... For more complex queries (involving data with more than just a key/value pair), use Firestore realtime features instead. For sorting purposes, see if it is possible to use a TreeMap...
-
-// TODO: While moving from Login/Register to Home, destroy the Login/Register view controller (in Android finish() is used. Find the iOS equivalent method...)
+// TODO: Releasing version 1.0. Notes/Tasks: 1- Implement the remaining feature Upload from Files, 2- Publish on GitHub and remove irrelevant comments (TODOs, personnal notes, ...), also remove all Firebase accesses (by deleting "GoogleService-Info.plist" file?).
 
 // TODO: Manage the Firebase security rules.
-
-// TODO: Define static variables (Android Kotlin equivalent: companion object) to manage Firebase Authentication...
-
-// TODO: Add a button to access the folder of the downloaded files. (The files downloaded by this app, from Firebase cloud storage.)
-
-// TODO: Change printed messages to alert message for a better user experience (UX)... Used the Firebase predefined error messages.
 
 // TODO: "Upload from Gallery" action is OK. Now implement "Upload from Files" action...
 
@@ -69,9 +59,6 @@ import FirebaseStorage
 import FirebaseDatabase
 
 class HomeViewController: UIViewController {
-    
-    /// Definition of static variables to be used for authentication purposes.
-    //static var appAuth: FirebaseAuth
         
     @IBOutlet weak var homeTableView: UITableView!
     
@@ -88,11 +75,11 @@ class HomeViewController: UIViewController {
     
     /// Root folder of the app data in the Realtime database.
     private let realtimeDbRoot = "FileSharingApp"
-    
-    // var folderList: [StorageReference] = [] /// Array containing the references (names, paths, links) of the folders stored in the cloud.
-    
+        
     /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database. realtimeFileList is used to feed the homeTableView.
     private var realtimeLocalFileList: [(String, String)] = []
+    
+    var listener: AuthStateDidChangeListenerHandle?
                 
     override func viewDidLoad() {
         
@@ -101,23 +88,35 @@ class HomeViewController: UIViewController {
         homeTableView.dataSource = self
         homeTableView.delegate = self
         
-        // Disable in the Navigation Controller the "Back to previous screen" button (located at the top left). TODO: Destroy the previous view controller.
-        navigationItem.setHidesBackButton(false, animated: false)
+        /// Disable in the Navigation Controller the "Back to previous screen" button (located at the top left).
+        navigationItem.setHidesBackButton(true, animated: false)
         
-        //navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.prefersLargeTitles = false
         
-        // TODO: Use static variables for everything related to Firebase Authentication.
-        guard let userEmail = Auth.auth().currentUser?.email else {return}
-        userEmailLabel.text = userEmail
-        print("Message from Home View Controller: The current user is \(userEmail)")
+        /// Adding a listener triggering a specific block of code (completion handler) depending if currentUser is nil or NOT.
+        listener = Auth.auth().addStateDidChangeListener { [self] _, currentUser in
+            
+            guard let userEmail = currentUser?.email else {
+                /// Case user is nil
+                print("Message from Home View Controller: AUTHENTICATION ERROR, UNABLE TO GET THE CURRENT USER")
+
+                AlertManager.showAlert(myTitle: "Authentication Error", myMessage: "Unable to get the current user.")
+                return
+            }
+            
+            /// Case user is NOT nil. Updating userEmailLabel.
+            userEmailLabel.text = userEmail
+            print("Message from Home View Controller: The current user is \(userEmail)")
+        
+        }
                 
-        copyDataFromStorageToRealtimeDB() /// Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
+        copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
         
-        getAndObserveFileNamesFromRealtimeDB() /// Get and observe the file list stored in the Realtime Database.
+        getAndObserveFileNamesFromRealtimeDB() // Get and observe the file list stored in the Realtime Database.
         
     }
     
-    /// Preparing segue for the next View Controllers.
+    // Preparing segue for the next View Controllers.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         // Get the view controller ImageViewController using segue.destination.
@@ -143,26 +142,27 @@ class HomeViewController: UIViewController {
     
     /// This function gets the list of files stored in the Firebase cloud storage and save it into the Realtime database.
     private func copyDataFromStorageToRealtimeDB() {
+        
         myStorageRef.child(fileStorageRoot).listAll { [self] result, error in
+            
             if let unWrappedError = error {
-                AlertManager.showAlert(myTitle: "Error", myMessage: "Error while fetching the list of elements stored in Firebase Cloud Storage. It seems that you don't have access to Firebase Cloud Storage.")
-                print("####### Error details: \(unWrappedError)")
+                AlertManager.showAlert(myTitle: "Cloud Storage Error", myMessage: unWrappedError.localizedDescription)
                 return
             }
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
             guard let fileReferences = result?.items else {return} // Array of file references, files stored in the Firebase Cloud Storage.
             
+            // TODO: Realtime Database resource management OPTIMIZATION - We need to COMPARE the Storage File List vs the Realtime File List. For now, comparing the number of elements in the Cloud Storage and the number of elements in the Realtime database is enough (assuming that the admin will never try to edit the filenames directly in the Realtime database terminal, also assuming that one random user will not delete a file while another random user is uploading another file at the same time...). Later I can add some code for checking the integrity of the Realtime database (check if any single value from the Cloud storage list matches with each unique value (file name) in the Realtime database. So number of element check + key/value check.
+            
             // setting file names in Realtime Database.
-            // TODO: Add try...catch here, to throw an exception a trigger an alert when the app is not able to connect to the Realtime database.
-            // TODO: Realtime resource management OPTIMIZATION - We need to COMPARE the Storage File List vs the Realtime File List. For now, comparing the number of elements in the Cloud Storage and the number of elements in the Realtime database is enough (assuming that the admin will never try to edit the filenames directly in the Realtime database terminal, also assuming that one random user will not delete a file while another random user is uploading another file at the same time...). Later I can add some code for checking the integrity of the Realtime database (check if any single value from the Cloud storage list matches with each unique value (file name) in the Realtime database. So number of element check + key/value check.
             
             /// Getting the number of files in the Cloud Storage
             let numberOfilesInCloudStorage = fileReferences.count
             
-            /// Getting the number of files currently registered in the Realtime Database
+            /// Getting the number of files currently registered in the Realtime Database.
             realtimeDbRef.child(realtimeDbRoot).getData { [self] error, snapshot in
                 if let error {
-                    AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: "Details: \(error.localizedDescription)")
+                    AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: error.localizedDescription)
                     return
                 }
                 guard let numberOfFilesInRealtimeDB = snapshot?.childrenCount else { print("ERROR!!!");return}
@@ -176,17 +176,14 @@ class HomeViewController: UIViewController {
                     
                     realtimeDbRef.child(realtimeDbRoot).removeValue() // Deletes all the current values in realtime database app folder to avoid duplication issues.
                     
-                    var id = 1000 // Initializing the file id which will be used to store the file in the Realtime database. With id = 10, we have ids from 10 to 99; With id = 100, we have ids from 100 to 999; With id = 1000, we have ids from 1000 to 9999.
+                    var id = 1001 // Initializing the file id which will be used to store the file in the Realtime database. With id = 11, we have ids from 11 to 99; With id = 101, we have ids from 101 to 999; With id = 1001, we have ids from 1001 to 9999.
                     for item in fileReferences {
-                        //childbyAutoId() generates a random unique key associated with each file name.
-                        //realtimeDbRef.child(realtimeDbRoot).childByAutoId().setValue(item.name) /// Writing file names get from Firebase cloud storage into Firebase Realtime database, with ids generated randomly.
-                        
-                        // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1000, Max: id9999, Total: 9000 potential ids.
+                        // Writing file names gotten from Firebase cloud storage into Firebase Realtime database, with ids generated manually. Min: id1001, Max: id9999, Total: 8999 potential ids.
                         realtimeDbRef.child(realtimeDbRoot).child("id\(id)").setValue(item.name)
-                        
                         // Generating my own ids instead of using random ids generated by childByAutoId() will allow the Android version of this app to use the same Realtime database (since childbyAutoId() doesn't exist in Android Kotlin). I must implement the same id manager, with the same rules, in the Android app.
                         id += 1 // Incrementing the id.
                     }
+                    
                 } else {
                     print("numberOfilesInCloudStorage is equal to numberOfFilesInRealtimeDB. No need to reinitialize and update the Realtime Database...")
                 }
@@ -198,49 +195,36 @@ class HomeViewController: UIViewController {
     private func getAndObserveFileNamesFromRealtimeDB() {
         
         realtimeDbRef.child(realtimeDbRoot).observe(.value) { [self] fileListSnapshot in
+            
             guard let currentFileList = fileListSnapshot.value as? [String: String] else {return}
-            realtimeLocalFileList.removeAll() ///Deletes all values stored in realtimeFileList to avoid duplication issues.
-            /// It is VERY IMPORTANT to sort elements inside the array currentFileList. Otherwise, the files will be shown randomly inside the iOS app and inside the Firebase Realtime Database terminal.
+            
+            realtimeLocalFileList.removeAll() // Delete all values stored in realtimeFileList to avoid duplication issues.
+            // It is VERY IMPORTANT to sort elements inside the array currentFileList. Otherwise, the files will be shown randomly inside the tableview of the iOS app.
             let sortedFileList = currentFileList.sorted(by: <) // Sorting items from the smallest id to the highest id.
-            //let sortedFileList = currentFileList.sorted{$0.0 < $1.0} // Samir's code...
             
             for (key, item) in sortedFileList {
                 realtimeLocalFileList.append((key, item))
             }
-            homeTableView.reloadData()
+            homeTableView.reloadData() // Reloading homeTableView with the updated realtimeLocalFileList.
             
         } withCancel: { error in
-            AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: "Details: \(error.localizedDescription)")
+            AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: error.localizedDescription)
             return
         }
-
-//        realtimeDbRef.child(realtimeDbRoot).observe(.value) { [self] fileListSnapshot in
-//            guard let currentFileList = fileListSnapshot.value as? [String: String] else {return}
-//            realtimeLocalFileList.removeAll() ///Deletes all values stored in realtimeFileList to avoid duplication issues.
-//            /// It is VERY IMPORTANT to sort elements inside the array currentFileList. Otherwise, the files will be shown randomly inside the iOS app and inside the Firebase Realtime Database terminal.
-//            let sortedFileList = currentFileList.sorted(by: <) // Sorting items from the smallest id to the highest id.
-//            //let sortedFileList = currentFileList.sorted{$0.0 < $1.0} // Samir's code...
-//            
-//            for (key, item) in sortedFileList {
-//                realtimeLocalFileList.append((key, item))
-//            }
-//            homeTableView.reloadData()
-//        }
-        // realtimeFileList is EMPTY here (outside the observe() function). We can't do anything outside the observe function.
     }
     
-    /// This function delete permanently from the Firebase Cloud Storage a file given its name.
+    /// This function deletes permanently from the Firebase Cloud Storage a file given its name.
     private func deleteFileFromCloudStorage(nameOfTheFile: String) {
         
         myStorageRef.child(fileStorageRoot).child(nameOfTheFile).delete { [self] error in
             
             if let fileDeletionError = error {
-                AlertManager.showAlert(myTitle: "File deletion error", myMessage: "Something went wrong while deleting the file \"\(nameOfTheFile)\".\nError: \(fileDeletionError)")
+                AlertManager.showAlert(myTitle: "File Deletion Error", myMessage: "\"\(nameOfTheFile)\"\n\(fileDeletionError)")
+                return
+                
             } else {
-                
-                copyDataFromStorageToRealtimeDB() /// Getting the list of files available in the Firebase Cloud Storage and storing them in the realtime database.
-                //getAndObserveFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
-                
+                copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
+                // No need to call getAndObserveFileNamesFromRealtimeDB() because it needs to be called only once and it has already been called at the end of the viewDidLoad() function.
                 AlertManager.showAlert(myTitle: "File deleted", myMessage: "The file \"\(nameOfTheFile)\" has been succesfully deleted from the cloud.")
             }
         }
@@ -249,11 +233,14 @@ class HomeViewController: UIViewController {
     /// This function uploads a file picked on the iPhone to the Firebase Cloud Storage.
     private func uploadFileToCloudStorage(fileNameWithExtension: String, fileData: Data, fileMetadata: StorageMetadata) {
         
+        // Note: In the uploadFileToCloudStorage() function, putData should be used instead of putFile in Extensions. (Note that here, PHPickerViewControllerDelegate is implemented as EXTENSION of HomeViewController).
+        // Because using putFile, the app tries to access the file located in the local URL, but unfortunately (probably for security reasons), the file is not reacheable in EXTENSIONS.
+        // Note: putData() asynchronously uploads data to the currently specified StorageReference. This is not recommended for large files, and one should instead upload a file from disk.
+        
         myStorageRef.child(fileStorageRoot).child(fileNameWithExtension).putData(fileData, metadata: fileMetadata) { [self] maybeMetadata, maybeError in
             
             if let uploadingError = maybeError {
-                AlertManager.showAlert(myTitle: "Upload error", myMessage: "Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
-                print("Unable to upload the file. Error details: \(uploadingError.localizedDescription)")
+                AlertManager.showAlert(myTitle: "File Upload Error", myMessage: uploadingError.localizedDescription)
                 return
             }
             
@@ -263,21 +250,17 @@ class HomeViewController: UIViewController {
             
             // TODO: Add some code to avoid uploading duplicate files (check if the names, sizes and types of the files match...), or uploading the same file again and again.
             
-            AlertManager.showAlert(myTitle: "File uploaded", myMessage: "Congratulations! The file \"\(fileNameWithExtension)\" has been successfully uploaded in the cloud using the new process!")
-            
-            print("### Name of the picked local file (pickedFileNameWithExtension): \(fileNameWithExtension)")
-            print("### Metadata of the uploaded file stored in the cloud (uploadedFileMetadata): \(uploadedFileMetadata)")
+            AlertManager.showAlert(myTitle: "File Uploaded", myMessage: "The file \"\(fileNameWithExtension)\" has been successfully uploaded in the Cloud Storage")
             
             copyDataFromStorageToRealtimeDB()
-            
-            //getAndObserveFileNamesFromRealtimeDB() // TODO: For optimization purposes, check if this line is necessary.
+            // No need to call getAndObserveFileNamesFromRealtimeDB() because it needs to be called only once and it has already been called at the end of the viewDidLoad() function.
         }
     }
     
     @IBAction func didTapUpload(_ sender: UIButton) {
         
         /// Creating an alert for choosing between actions "Upload from Gallery" and "Upload from Files"
-        let uploadFileAlert = UIAlertController(title: "Upload a file", message: "Please choose the location of your file", preferredStyle: .alert)
+        let uploadFileAlert = UIAlertController(title: "Upload a File", message: "Please choose the location of your file", preferredStyle: .alert)
         
         /// Upload Action #1: Upload an image or a video located in phone gallery (app "Photos")
         let uploadFromGalleryAction = UIAlertAction(title: "Upload from Gallery", style: .default) { [self] _ in
@@ -297,11 +280,9 @@ class HomeViewController: UIViewController {
         let uploadFromFilesAction = UIAlertAction(title: "Upload from Files", style: .default) { [self] _ in
             //let filePickerVC = UIDocumentPickerViewController(forExporting: .init())
             
-            
             let localFilesURLs = FileManager.default.urls(for: .userDirectory, in: .userDomainMask)
             // TODO: Difference between ".userDirectory" and ".documentDirectory". Also look for "On My iPhone" specific URL...
 
-            
             let filePickerVC = UIDocumentPickerViewController(forExporting: localFilesURLs, asCopy: true)
             present(filePickerVC, animated: true)
         }
@@ -316,23 +297,29 @@ class HomeViewController: UIViewController {
     
     /// Signing out and back to LoginViewController
     @IBAction func didTapSignOut(_ sender: UIButton) {
-        // TODO: Add userEmail in the confirmation alert.
-        let confirmationAlert = UIAlertController(title: "Confirmation", message: "Do you want to sign out?", preferredStyle: .alert)
+        
+        guard let userEmail = Auth.auth().currentUser?.email else {return} // Getting the current user email address.
+        
+        let confirmationAlert = UIAlertController(title: "Confirmation", message: "\(userEmail)\nDo you want to sign out?", preferredStyle: .alert)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         
         let signOutAction = UIAlertAction(title: "Sign Out", style: .destructive) { [self] _ in
+            
             do {
                 try Auth.auth().signOut() ///Signing out
-                performSegue(withIdentifier: "homeToLogin", sender: self)
+                guard let unwrappedListener = listener else {return}
+                Auth.auth().removeStateDidChangeListener(unwrappedListener) // Removing the listener: AuthStateDidChangeListenerHandle to avoid error message ("Unable to get the current user.") while signing out and moving to the Login Screen.
+                performSegue(withIdentifier: "homeToLogin", sender: self) // Returning to Login Screen.
                 
                 /// Destroying the current view controller (HomeViewController). In that way, being in the new view controller (LoginViewController), it will not be possible to back to this view controller (HomeViewController).
                 willMove(toParent: nil)
                 view.removeFromSuperview()
                 removeFromParent()
                 
-            } catch (let error) {
-                AlertManager.showAlert(myTitle: "Signing out failed", myMessage: error.localizedDescription)
+            } catch let signOutError as NSError {
+                AlertManager.showAlert(myTitle: "Signing out failed", myMessage: signOutError.localizedDescription)
+                return
             }
         }
         
@@ -362,38 +349,39 @@ extension HomeViewController: UITableViewDataSource {
 
 extension HomeViewController: UITableViewDelegate {
     
-    /// Actions taken when the user tap on a file
+    /// Actions taken when the user tap on a file in the homeTableView. When user tap on a file, an Alert showing the details (properties, metadata, ...) of the file and various selectable actions is triggered.
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
         let nameOfTheFileSelectedInHomeTableView: String = realtimeLocalFileList[indexPath.row].1
         
-        /// And all the information needed by the application should be get from the Realtime database.
-        /// It is better to proceed like that because is not possible to access informations like metadata or file list outside the Cloud Storage functions getMetadata and listAll.
+        // And all the information needed by the application IS get from the Realtime Database.
+        // It is better to proceed like that because is not possible to access informations like metadata or file list outside the Cloud Storage functions getMetadata(), listAll(), ...
         
         /// Getting metadata of a file stored in Firebase cloud storage based on the name of the same file in the local device. I tried to make a separate function to make the code more readable but it didn't work. The metadata are not available or accessible outside the Firebase native function below "getMetadata".
         myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView).getMetadata { [self] metadata, error in
             
-            if let myError = error {
-                AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong with metadata. Error \(myError)")
+            if let metadataError = error {
+                AlertManager.showAlert(myTitle: "Metadata Error", myMessage: "\(metadataError)")
+                return
             }
-            
+            /// Collecting properties of the selected file.
             guard let fileKind = metadata?.contentType,
                   let fileSize = metadata?.size.formatted(),
                   let fileTimeCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
                   let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
-                  let uploadedFileName = metadata?.name,
+                  let fileNameInCloudStorage = metadata?.name,
                   let fileContentType = metadata?.contentType
             else {
-                AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the file metadata.")
+                AlertManager.showAlert(myTitle: "Metadata Error", myMessage: "Unable to get the file metadata.")
                 return
             }
             
-            let fileToOpenRef = myStorageRef.child(fileStorageRoot).child(uploadedFileName)
+            /// Cloud Storage Reference of the selected file.
+            let fileToOpenRef = myStorageRef.child(fileStorageRoot).child(fileNameInCloudStorage)
             
             let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
-            
             
             /// Action #1: Open image in ImageView
             let openImageAction = UIAlertAction(title: "Open in Image View", style: .default) { [self] _ in
@@ -402,14 +390,13 @@ extension HomeViewController: UITableViewDelegate {
                     AlertManager.showAlert(myTitle: "Error", myMessage: "The file you selected is not an image. Only image files can be loaded in Image View.")
                     return
                 }
-                
-                // Perform segue "showImage". TODO: In the future, instead of showing the downloaded imgage in an image view, I should also try a Web View or a WebKit View. So I will be able to open image files and many other files like PDFs, ...
-                self.performSegue(withIdentifier: "showImage", sender: (uploadedFileName, fileToOpenRef))
+                // Open selected image in the ImageViewController
+                self.performSegue(withIdentifier: "showImage", sender: (fileNameInCloudStorage, fileToOpenRef))
             }
             
             /// Action #2: Open file in WebKit View
             let openInWebKitViewAction = UIAlertAction(title: "Open in WebKit View", style: .default) { _ in
-                self.performSegue(withIdentifier: "showWebView", sender: (uploadedFileName, fileToOpenRef))
+                self.performSegue(withIdentifier: "showWebView", sender: (fileNameInCloudStorage, fileToOpenRef))
             }
             
             // TODO: Action #3: Open file with default system resources
@@ -418,35 +405,32 @@ extension HomeViewController: UITableViewDelegate {
             }
             
             /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device. Download file in app default folder (folder: "FileSharingApp"). The downloaded files are opened by default with Safari.
-            let downloadFileAction = UIAlertAction(title: "Download in the default app folder", style: .default) { [self] _ in
-                // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp"
+            let downloadFileAction = UIAlertAction(title: "Download in the Default App Folder", style: .default) { [self] _ in
+                // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp", which is accessible using the iOS app "Files".
                 let fileToDownloadRef = myStorageRef.child(fileStorageRoot).child(nameOfTheFileSelectedInHomeTableView)
                                 
                 /// "localURLs" is an Array containing the url of the current user's Document directory. The "urls()" function searches the folders defined in the given parameters.
                 let localURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-                //let galleryURLs = FileManager.default.urls(for: ., in: <#T##FileManager.SearchPathDomainMask#>)
+                // In iOS, the user Document directory of this app has the same name as the app (in this case: "FileSharingApp").
+                // To make that folder visible in iOS through the app "Files", I have added the parameters "Supports opening documents in place" and "Application supports iTunes file sharing" to the "Info.plist" file, and set both parameters to "YES".
+                let appDocumentFolderURL = localURLs[0] // Get the url of the default local folder / "Document directory" of this app (named in Files app "FileSharingApp")
                 
-                /// In iOS, the user Document directory of this app has the same name as the app (in this case: "FileSharingApp").
-                /// To make that folder visible in iOS through the app "Files", I have added the parameters "Supports opening documents in place" and "Application supports iTunes file sharing" to the "Info.plist" file, and set both parameters to "YES".
-                let appDocumentFolderURL = localURLs[0] /// Get the url of the default local folder / "Document directory" of this app (named in Files app "FileSharingApp")
-                
-                /// Created "downloadFileTask" to monitor and manage the download process. The app writes the downloaded files in the "appDocumentFolderURL" ()
+                /// Created "downloadFileTask" to monitor and manage the download process. The app writes the downloaded files at the local iPhone URL "appDocumentFolderURL" (pointing to the folder "FileSharingApp").
                 let downloadFileTask = fileToDownloadRef.write(toFile: appDocumentFolderURL.appending(path: nameOfTheFileSelectedInHomeTableView)) { maybeURL, maybeError in
                     if let error = maybeError {
-                        AlertManager.showAlert(myTitle: "Download Error", myMessage: "Unable to download and save the file on local device.")
-                        print("Download error details: \(error.localizedDescription)")
+                        AlertManager.showAlert(myTitle: "Download Error", myMessage: error.localizedDescription)
                         return
                     }
                     
-                    guard let savedFileURL = maybeURL else {return}
-                    AlertManager.showAlert(myTitle: "Download complete", myMessage: "The file has been successfully downloaded and saved on local device.")
-                    print("Downloaded file local URL: \(savedFileURL)")
+                    guard let downloadedFileLocalURL = maybeURL else {return}
+                    AlertManager.showAlert(myTitle: "Download Complete", myMessage: "The file has been successfully downloaded and saved on local device.")
+                    print("Downloaded file local URL: \(downloadedFileLocalURL)")
                 }
                 // TODO: Manage duplication. Add conditions to avoid downloading the same file locally many times(So avoid erasing existing file with the same name).
             }
             
             // TODO: Action #5: Choose where to save the downloaded file
-            let downloadInSpecifiedLocationAction = UIAlertAction(title: "Download in specified location", style: .default) { _ in
+            let downloadInSpecifiedLocationAction = UIAlertAction(title: "Download in Specified Location", style: .default) { _ in
                 // TODO: Download the chosen file and select where to save that file in the local device.
                 // TODO: Add "Open file location folder" action.
             }
@@ -454,36 +438,30 @@ extension HomeViewController: UITableViewDelegate {
             // TODO: Action #6: Generate a link to access the selected file stored in Firebase Cloud Storage. Interface to be improved...
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
-                
-                myStorageRef.child(fileStorageRoot).child(uploadedFileName).downloadURL { maybeUrl, maybeError in
+                myStorageRef.child(fileStorageRoot).child(fileNameInCloudStorage).downloadURL { maybeUrl, maybeError in
                     if let error = maybeError {
-                        AlertManager.showAlert(myTitle: "Download Error", myMessage: "Unable to get the URL of the selected file.")
-                        print("##### Error details: \(error.localizedDescription)")
+                        AlertManager.showAlert(myTitle: "Share Error", myMessage: error.localizedDescription)
                         return
                     }
                     
-                    guard let url = maybeUrl else {
-                        AlertManager.showAlert(myTitle: "Error", myMessage: "Something went wrong while unwrapping the URL.")
-                        print("##### Error while unwrapping the URL.")
-                        return
-                    }
+                    guard let url = maybeUrl else {return}
                     UIPasteboard.general.url = url // Copying the downloaded URL into the iPhone clipboard.
                     print("File link to share: \(url)")
                 }
                 
-                AlertManager.showAlert(myTitle: uploadedFileName, myMessage: "File link copied to clipboard.")
+                AlertManager.showAlert(myTitle: fileNameInCloudStorage, myMessage: "File link copied to clipboard.")
                 
             }
             
             /// Action #7: Delete file
-            let deleteFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
+            let deleteFileMenuAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 // Permanently delete from the Firebase Cloud Storage a selected file.
                 let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
                 
                 let deleFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                     deleteFileFromCloudStorage(nameOfTheFile: nameOfTheFileSelectedInHomeTableView) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
                     
-                    // TODO: For future improvement, instead of permanently delete the files from the Firebase cloud storage, the files should just be moved to a trash or recycle bin.
+                    // TODO: For future improvement, instead of permanently delete the files from the Firebase cloud storage, the files could just be moved to a trash or recycle bin.
                 }
                 
                 deleteConfirmationAlert.addAction(deleFileAction)
@@ -498,34 +476,31 @@ extension HomeViewController: UITableViewDelegate {
             fileDetailsAlert.addAction(downloadFileAction)
             fileDetailsAlert.addAction(downloadInSpecifiedLocationAction)
             fileDetailsAlert.addAction(shareFileAction)
-            fileDetailsAlert.addAction(deleteFileAction)
+            fileDetailsAlert.addAction(deleteFileMenuAction)
             fileDetailsAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) /// Action #8: Cancel
             
             present(fileDetailsAlert, animated: true)
-        }
+        } // END getMetadata()
     }
     
     /// Implementing a swipe action for deleting a selected file
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let fileToBeDeleted: String = realtimeLocalFileList[indexPath.row].1
+        let nameOfTheFileToDelete: String = realtimeLocalFileList[indexPath.row].1 // Getting the name of the file to delete from the realtimeLocalFileList(which is used as datasource of homeTableView).
         
-        let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(fileToBeDeleted) from the cloud?", preferredStyle: .alert)
+        let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileToDelete) from the cloud?", preferredStyle: .alert)
         
         let deleFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
-            deleteFileFromCloudStorage(nameOfTheFile: fileToBeDeleted) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
-            
-            // TODO: For future improvement, instead of permanently delete the files from the Firebase cloud storage, the files should just be moved to a trash or recycle bin.
+            deleteFileFromCloudStorage(nameOfTheFile: nameOfTheFileToDelete) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
         }
         
         deleteConfirmationAlert.addAction(deleFileAction)
         deleteConfirmationAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
-        let deleteFileContextualAction = UIContextualAction(style: .destructive, title: "Delete") { [self] action, view, completion in
+        let deleteFileContextualAction = UIContextualAction(style: .destructive, title: "Delete") { [self] _, _, completion in
             present(deleteConfirmationAlert, animated: true)
             completion(true)
         }
-        
         return UISwipeActionsConfiguration(actions: [deleteFileContextualAction])
     }
 }
@@ -539,84 +514,52 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         // TODO: Allow picking (and then uploading) more than one file at the same time.
         
         guard let fileProvider = results.first?.itemProvider else {return} // Pickup the item provider of the first object of the array "results".
-        //fileProvider.canLoadObject(ofClass: UIImage.self) // This line seems to be useless...
-        /// Instead of UIImage, try UTType or UTTypeMovie for videos
-        /// NS stands for NeXTSTEP
         
-        /// Getting the name (name WITHOUT extension) of the file the user picked. We should use ".preferredFilenameExtension" to get the file extension.
-        /// To get the the whole name of the picked file including extension file, we shoud get the local URL of the picked file and then extract the last component of the URL using ".lastPathComponent"
-        guard let pickedFileName = fileProvider.suggestedName else {
-            AlertManager.showAlert(myTitle: "Error", myMessage: "Unable to get the name of the picked file.")
-            return
-        }
+        // Getting the name (name WITHOUT extension) of the file the user picked, using ".suggestedName". We should use ".preferredFilenameExtension" to get the file extension.
+        // To get the the whole name of the picked file including extension file, we shoud get the local URL of the picked file and then extract the last component of the URL using ".lastPathComponent"
+        guard let pickedFileName = fileProvider.suggestedName else {return} // Name of the picked file WITHOUT extension.
         
         guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
         
-        ///"preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
-        guard let pickedFileContentTypeName = pickedFileType.preferredMIMEType else {return}
+        /// Name of the type (as represented in Firebase) of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
+        guard let pickedFileContentTypeName = pickedFileType.preferredMIMEType else {return} // "preferredMIMEType" gives the name of the type of the picked file, corresponding to the "content type" metadata of a file stored in Firebase Cloud Storage.
+
+        guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return} // Extension of the local file picked. Can be used while uploading the file.
         
-        guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return}
-        
-        let pickedFileTypeIdentifier = pickedFileType.identifier
-        
+        let pickedFileTypeIdentifier = pickedFileType.identifier // iOS identifier of the type of the picked file. Example "public.jpeg". It is used for loading file representation (for example to get the local URL of the picked file).
+
         /// pickedFileMetadata contains the metadata of the file the user picked for uploading.
         let pickedFileMetadata = StorageMetadata()
+        
         /// Setting the content type of the file to be uploaded. Otherwise, the file will be uploaded in Firebase Storage as "application/octet-stream" (so with no specific extension)...
-        pickedFileMetadata.contentType = pickedFileContentTypeName // FORMAT: fileMetadata.contentType = "image/jpeg"
-        
-        
-        /// Print the name of the picked file (WITHOUT extension)
-        print("Name of the picked file WITHOUT extension: \(pickedFileName)")
-        
-        /// Name of the type (as represented in Firebase) of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
-        print("***** Name of the type of the selected file (pickedFileType.preferredMIMEType) AKA Content type name: \(pickedFileContentTypeName)")
-        
-        /// Extension of the local file picked. Can be used while uploading the file.
-        print("***** Extension of the local file picked (pickedFileType.preferredFilenameExtension): \(pickedFileExtension)")
-        
-        /// File type identifier. It is used for loading file representation (for example to get the local URL of the picked file.)
-        print("#### Identifier of the type of the picked file: \(pickedFileTypeIdentifier)")
-        
-        // print("***** pickedFileType.referenceURL: \(pickedFileType.referenceURL)") // The value is null.
-        
+        pickedFileMetadata.contentType = pickedFileContentTypeName // FORMAT (example): fileMetadata.contentType = "image/jpeg"
+                
         // ***** Getting the (temporary) local URL of the picked file *****
-        ///loadInPlaceFileRepresentationForTypeIdentifier: is not supported. Use loadFileRepresentationForTypeIdentifier: instead.
-        /// The function loadFileRepresentation() below, asynchronously writes a copy of the provided, typed data to a temporary file, returning a progress object.
+        // loadInPlaceFileRepresentationForTypeIdentifier: is not supported. We use loadFileRepresentationForTypeIdentifier instead to be able to extract the local URL of the file selected for uploading.
+        // The function loadFileRepresentation() below asynchronously writes a copy of the provided typed data to a temporary file, returning a progress object.
         fileProvider.loadFileRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeURL, maybeError in
-            if let error = maybeError {
-                AlertManager.showAlert(myTitle: "Uploading error", myMessage: "Unable to get the URL of the local file.")
-                print("Uploading error details: \(error.localizedDescription)")
+            
+            if let gettingURLError = maybeError {
+                AlertManager.showAlert(myTitle: "Upload Error", myMessage: gettingURLError.localizedDescription)
                 return
             }
-            
-            /// "pickedFileURL" contains the URL of the local file that the user picked/chose for uploading. In fact, when the file is picked, iOS write a copy of the file in a temporary folder and stores the local URL of that temp file in "pickedFileURL". Again, probably for security purposes.
-            guard let pickedFileURL = maybeURL else {return}
-            print("##### URL of the picked file: \(pickedFileURL)")
-            print("##### Complete name of the picked file including file extension:\(pickedFileURL.lastPathComponent)")
+            /// "pickedLocalFileURL" contains the URL of the local file that the user picked/chose for uploading. In fact, when the file is picked, iOS write a copy of the file in a temporary folder and stores the local URL of that temp file in "pickedFileLocalURL". Again, probably for security purposes.
+            guard let pickedLocalFileURL = maybeURL else {return}
             
             /// "pickedFileNameWithExtension" contains the complete name of the file picked by the user for uploading... It is extracted from the complete URL of the local (temp) file.
-            let pickedFileNameWithExtension = pickedFileURL.lastPathComponent
+            let pickedFileNameWithExtension = pickedLocalFileURL.lastPathComponent
             
-            /// Loading the file to be uploaded in memory
+            // Loading in memory the file to be uploaded
             fileProvider.loadDataRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeData, maybeError in
-                
-                if let error = maybeError {
-                    AlertManager.showAlert(myTitle: "Uploading error", myMessage: "Unable to load the picked file in memory. Error details:\(error.localizedDescription).")
-                    print("Uploading error details: \(error.localizedDescription)")
+                if let uploadError = maybeError {
+                    AlertManager.showAlert(myTitle: "Upload Error", myMessage: uploadError.localizedDescription)
                     return
                 }
-                
                 /// pickedFileData contains the data of the file to be uploaded in the Firebase Cloud Storage.
                 guard let pickedFileData = maybeData else {return}
                 
                 // Uploading the picked file using its local temporary URL
-                
-                // TODO: Do we need to use DispatchQueue.main.sync {} here??? To be tested...
                 uploadFileToCloudStorage(fileNameWithExtension: pickedFileNameWithExtension, fileData: pickedFileData, fileMetadata: pickedFileMetadata)
-                
-                /// Note: In the uploadFileToCloudStorage() function, putData should be used instead of putFile in Extensions. (Note that here, PHPickerViewControllerDelegate is implemented as EXTENSION of HomeViewController).
-                /// Because using putFile, the app tries to access the file located in the local URL, but unfortunately (probably for security reasons), the file is not reacheable.
-                /// putData() asynchronously uploads data to the currently specified StorageReference. This is not recommended for large files, and one should instead upload a file from disk.
             
             } /// END of fileProvider.loadDataRepresentation()
         
@@ -625,4 +568,3 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true)
     }
 }
-

@@ -17,16 +17,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        //guard let _ = (scene as? UIWindowScene) else { return }
+        guard let _ = (scene as? UIWindowScene) else { return }
         
         /// With the code below, if the user is already logged in to the server, they will directly get the Home Screen when launching the app.
         /// If the user is not yet logged in, they will get the Login Screen when launching the app.
         guard let windowScene = scene as? UIWindowScene else {return}
-        
-        var myCurrentUser = Auth.auth().currentUser
-        
-        
-        if myCurrentUser != nil { // TODO: Use if let instead...
+                
+        if let appCurrentUser = Auth.auth().currentUser?.email {
+            
+            /// Code to be executed if the current user is NOT nil. Show the HomeViewController.
+            print("**** Message from SceneDelegate: The current user is: \(appCurrentUser). Launching Home Screen... ****")
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let navigationController = storyboard.instantiateInitialViewController() as? UINavigationController
             let myHomeViewController = storyboard.instantiateViewController(withIdentifier: "HomeVC") as UIViewController
@@ -35,18 +35,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.rootViewController = navigationController
             self.window = window
             window.makeKeyAndVisible()
-            print("The value of Auth.auth().currentUser IS NOT NIL. VALUE: \(myCurrentUser)")
             
         } else {
-            print("The value of Auth.auth().currentUser should be nil. VALUE: \(myCurrentUser)")
-        }
-        
-        Auth.auth().addStateDidChangeListener { _, currentUser in
-
-            guard let userEmail = currentUser?.email else {return}
-            /// Printing a message test in console just for debugging
-            print("Message from SceneDelegate (using Auth.auth().addStateDidChangeListener): The current logged in user is \(userEmail)")
-            
+            /// Code to be executed if the current user is nil.
+            print("**** Message from SceneDelegate: NO USER LOGGED IN. VALUE: \(String(describing: (Auth.auth().currentUser?.email))). Launching Login Screen... ****")
         }
 
     }

@@ -28,35 +28,36 @@ class RegisterViewController: UIViewController {
         guard let email = registerEmailTextField.text, !email.isEmpty,
               let password = registerPasswordTextField.text, !password.isEmpty else {
             /// Show alert to indicate that there is a problem.
-            AlertManager.showAlert(myTitle: "Registration error", myMessage: "Sorry, the Email or Password text field is empty.")
+            AlertManager.showAlert(myTitle: "Registration Error", myMessage: "Sorry, the Email or Password text field is empty.")
             return
         }
         
         /// Managing the creation of a new user (Register) using the Firebase Authentication feature.
-        Auth.auth().createUser(withEmail: email, password: password) { [weak self] _, maybeError in
+        Auth.auth().createUser(withEmail: email, password: password) { [self] authResult, maybeError in
             
             /// Handling sign up (Register) errors:
             if let error = maybeError {
-                AlertManager.showAlert(myTitle: "Registration error", myMessage: error.localizedDescription)
+                AlertManager.showAlert(myTitle: "Registration Error", myMessage: error.localizedDescription)
                 return
             }
-            
-            /// Extraction of the user email
-            guard let userEmail = Auth.auth().currentUser?.email else { // TODO: Save the user email in a static variable
-                /// Printing a message test in console just for debugging
-                print("Message from Register View Controller: The current user is \(String(describing: Auth.auth().currentUser?.email))")
-                return
-            }
-            /// Printing a message test in console just for debugging
-            print("Message from Register View Controller: The current user is \(userEmail)")
-            
+                        
             /// Handling successfull registration
-            self?.performSegue(withIdentifier: "registerToHomeScreen", sender: self)
-            AlertManager.showAlert(myTitle: "Account successfully created", myMessage: "Welcome \(userEmail).\nWe hope you will enjoy this File Sharing App!")
+            performSegue(withIdentifier: "registerToHomeScreen", sender: self) // There is no need to prepare the segue with override func prepare(for segue: UIStoryboardSegue, sender: Any?) {}
+            
+            /// Extracting user email. I prefer NOT to use the email entered in the registerEmailTextField simply for capitalization purposes. The email got from Firebase is always well capitalized.
+            guard let userEmail = authResult?.user.email else {return}
+            
+            AlertManager.showAlert(myTitle: "Account Successfully Created", myMessage: "Welcome \(userEmail).\nWe hope you will enjoy this File Sharing App!")
+            
+            /// Destroying the current view controller (RegisterViewController). In that way, being in the new view controller (HomeViewController), it will not be possible to back to this view controller (RegisterViewController).
+            willMove(toParent: nil)
+            view.removeFromSuperview()
+            removeFromParent()
         }
     }
     
     @IBAction func didTapGoToLogin(_ sender: UIButton) {
+        
         /// Moving to LoginViewController
         performSegue(withIdentifier: "registerToLogin", sender: self) // There is no need to prepare the segue with override func prepare(for segue: UIStoryboardSegue, sender: Any?) {}
         
@@ -65,4 +66,5 @@ class RegisterViewController: UIViewController {
         view.removeFromSuperview()
         removeFromParent()
     }
+    
 }
