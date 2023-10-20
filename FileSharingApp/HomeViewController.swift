@@ -4,53 +4,7 @@
 //
 //  Created by Jolly BANGUE on 2023-08-28.
 //
-// Description: A native iOS app that enables users to upload, download, delete, and share files using Firebase features (Firebase Authentication, Firebase Cloud Storage, and Firebase Realtime Database).
-
-// Some important notes about iOS "Photos" and "Files" apps of the simulators
-// 1- When we drag and drop files from the computer to the the "Photos" app gallery, the name of the file is changed. The app add a unique random key at the end of the original file name (E.g.: "File 1" in the computer becomes something like "File 1-6CEAC9E8-5385-4E51-B7F2-032128643381")
-// 2- When we drag and drop files from the computer to the the "Files" app folder, the name of the file is unchanged.
-// 3- We cannot edit the name of a file stored the "Photos" app galery
-// 4- We can edit the name of a file stored the "Files" app folders
-// 5- We can save a copy of a file stored the "Photos" app galery, in a folder of the app "Files". Obviously in that case, the copy saved in the "Files" folder can be renamed as much as we want.
-// 6- We can import a photo saved in a "Files" folder in the "Photos" app gallery. In that case, the copy of the file saved in the "Photos" app gallery is automatically renamed with a format like this: "IMG_0003". The next saved file (in the "Photos" app gallery) will be "IMG_0004", ...
-
-// 7- "preferredMIMEType" gives the type of the picked file, corresponding to the content type metadata of a file stored in Firebase Cloud Storage.
-
-// TODO: Releasing version 1.0. Notes/Tasks: 1- Implement the remaining feature Upload from Files, 2- Publish on GitHub and remove irrelevant comments (TODOs, personnal notes, ...), also remove all Firebase accesses (by deleting "GoogleService-Info.plist" file?).
-
-// TODO: Manage the Firebase security rules.
-
-// TODO: "Upload from Gallery" action is OK. Now implement "Upload from Files" action...
-
-// TODO: Implement the "Download in a selected folder" function.
-
-// TODO: Improve the "Share file" function.
-
-// TODO: Check if the error while connecting to the Firebase cloud storage is handled.
-
-// TODO: Implement observers for all upload and download tasks.
-
-// TODO: Manage upload and download duplications (to avoid uploading or downloading the same file many times.)
-
-// TODO: Allow selecting many files in the table view. Allow deleting many selected files at the same time.
-
-// TODO: Implement the "Rename file" functionality...
-
-// TODO: Include folder management (see folder list, create a new folder, rename a folder, delete a folder, ...)
-
-// TODO: Improve Alert/Toast management...
-
-// TODO: Manage sorting files (by id, by name, by size, ...). By default, the files shown in the app are in the same order than the files in the cloud storage, and they sorted by increasing order (from small to higher, id1001, id1002, id1003, ...) of the ids in the realtime database. In that case, Firebase Firestore must be used instead of Realtime database.
-
-// TODO: Try to delete all the files from the Home table view and see how it works.
-
-// TODO: Unit tests.
-
-// TODO: UI/UX tests.
-
-// TODO: Refactoring.
-
-// TODO: Generate app documentation.
+// Description: A file management iOS app that allows users to upload, download, open, delete, and share files stored in cloud using Firebase features (Firebase Authentication, Firebase Cloud Storage and Firebase Realtime Database).
 
 import UIKit
 import PhotosUI
@@ -152,9 +106,9 @@ class HomeViewController: UIViewController {
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
             guard let fileReferences = result?.items else {return} // Array of file references, files stored in the Firebase Cloud Storage.
             
-            // TODO: Realtime Database resource management OPTIMIZATION - We need to COMPARE the Storage File List vs the Realtime File List. For now, comparing the number of elements in the Cloud Storage and the number of elements in the Realtime database is enough (assuming that the admin will never try to edit the filenames directly in the Realtime database terminal, also assuming that one random user will not delete a file while another random user is uploading another file at the same time...). Later I can add some code for checking the integrity of the Realtime database (check if any single value from the Cloud storage list matches with each unique value (file name) in the Realtime database. So number of element check + key/value check.
+            // TODO: Realtime Database resource management optimization.
             
-            // setting file names in Realtime Database.
+            // Setting file names in Realtime Database...
             
             /// Getting the number of files in the Cloud Storage
             let numberOfilesInCloudStorage = fileReferences.count
@@ -337,10 +291,10 @@ extension HomeViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // TODO: Expression to be tested: let cell = UITableViewCell(style: .default, reuseIdentifier: "fileCell")
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "fileCell", for: indexPath)
         
-        cell.textLabel?.text = realtimeLocalFileList[indexPath.row].1
+        cell.textLabel?.text = realtimeLocalFileList[indexPath.row].1 // Picking filenames in realtimeLocalFileList to feed homeTableView textlabel cells.
         cell.textLabel?.adjustsFontSizeToFitWidth = true
         cell.textLabel?.font = UIFont.systemFont(ofSize: 12)
         return cell
@@ -401,7 +355,7 @@ extension HomeViewController: UITableViewDelegate {
             
             // TODO: Action #3: Open file with default system resources
             let openFileAction = UIAlertAction(title: "Open with System", style: .default) { _ in
-                // TODO: Open the selected file with the system default app...
+                // Open the selected file with the system default app...
             }
             
             /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device. Download file in app default folder (folder: "FileSharingApp"). The downloaded files are opened by default with Safari.
@@ -431,11 +385,10 @@ extension HomeViewController: UITableViewDelegate {
             
             // TODO: Action #5: Choose where to save the downloaded file
             let downloadInSpecifiedLocationAction = UIAlertAction(title: "Download in Specified Location", style: .default) { _ in
-                // TODO: Download the chosen file and select where to save that file in the local device.
-                // TODO: Add "Open file location folder" action.
+                // Download the chosen file and select where to save that file in the local device.
             }
             
-            // TODO: Action #6: Generate a link to access the selected file stored in Firebase Cloud Storage. Interface to be improved...
+            // TODO: Action #6: Share file. User Interface to be improved...
             let shareFileAction = UIAlertAction(title: "Share", style: .default) { [self] _ in
                 // Generate and download the link of the selected file and copy that link to the iPhone clipboard
                 myStorageRef.child(fileStorageRoot).child(fileNameInCloudStorage).downloadURL { maybeUrl, maybeError in
