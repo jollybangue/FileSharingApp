@@ -97,10 +97,10 @@ class HomeViewController: UIViewController {
     /// This function gets the list of files stored in the Firebase cloud storage and save it into the Realtime database.
     private func copyDataFromStorageToRealtimeDB() {
         
-        myStorageRef.child(fileStorageRoot).listAll { [self] result, error in
+        myStorageRef.child(fileStorageRoot).listAll { [self] result, maybeError in
             
-            if let unWrappedError = error {
-                AlertManager.showAlert(myTitle: "Cloud Storage Error", myMessage: unWrappedError.localizedDescription)
+            if let error = maybeError {
+                AlertManager.showAlert(myTitle: "Cloud Storage Error", myMessage: error.localizedDescription)
                 return
             }
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
@@ -114,12 +114,12 @@ class HomeViewController: UIViewController {
             let numberOfilesInCloudStorage = fileReferences.count
             
             /// Getting the number of files currently registered in the Realtime Database.
-            realtimeDbRef.child(realtimeDbRoot).getData { [self] error, snapshot in
-                if let error {
+            realtimeDbRef.child(realtimeDbRoot).getData { [self] maybeError, snapshot in
+                if let error = maybeError {
                     AlertManager.showAlert(myTitle: "Realtime Database Error", myMessage: error.localizedDescription)
                     return
                 }
-                guard let numberOfFilesInRealtimeDB = snapshot?.childrenCount else { print("ERROR!!!");return}
+                guard let numberOfFilesInRealtimeDB = snapshot?.childrenCount else {return}
                 
                 print("INITIALIZATION: Number of files in Firebase Cloud Storage: \(numberOfilesInCloudStorage)")
                 print("INITIALIZATION: Number of files in Realtime Database: \(numberOfFilesInRealtimeDB)")
