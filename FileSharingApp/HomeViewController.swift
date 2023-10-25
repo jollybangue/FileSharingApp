@@ -217,7 +217,7 @@ class HomeViewController: UIViewController {
         let uploadFileAlert = UIAlertController(title: "Upload a File", message: "Please choose the location of your file", preferredStyle: .alert)
         
         /// Upload Action #1: Upload an image or a video located in phone gallery (app "Photos")
-        let uploadFromGalleryAction = UIAlertAction(title: "Upload from Gallery", style: .default) { [self] _ in
+        let uploadFromGalleryAction = UIAlertAction(title: "Upload from Photos", style: .default) { [self] _ in
             
             var mediaPickerConfig = PHPickerConfiguration()
             mediaPickerConfig.selectionLimit = 1  // TODO: Allow picking more than one file in the gallery for uploading...
@@ -235,7 +235,7 @@ class HomeViewController: UIViewController {
         let uploadFromFilesAction = UIAlertAction(title: "Upload from Files", style: .default) { [self] _ in
             //let filePickerVC = UIDocumentPickerViewController(forExporting: .init())
             // NOTE: With ".documentDirectory", we have at the bottom of filePickerVC a "Documents" bar with a Tags selector. With ".userDirectory", we don't have that bar.
-           // let localFilesURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+            // let localFilesURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask) // Getting the URLs of the items located in the documentDirectory folder.
             
             // TODO: Difference between ".userDirectory" and ".documentDirectory". Also look for "On My iPhone" specific URL...
 
@@ -245,15 +245,14 @@ class HomeViewController: UIViewController {
             
             // .content, .data, .item
             
+            /// Defining a file picker view controller allowing the user to pick any kind of item in the screen, no matter what its type is.
             let filePickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [.item])
             
             filePickerVC.delegate = self
             
             // filePickerVC.directoryURL = .documentsDirectory // Use it to set the initial (default) folder for picking files.
-            
-            filePickerVC.modalPresentationStyle = .formSheet
-            
-            filePickerVC.allowsMultipleSelection = false
+                        
+            filePickerVC.allowsMultipleSelection = false // TODO: Allow multiple selection, to allow user to upload many files at the same time.
             
             present(filePickerVC, animated: true)
         }
@@ -481,76 +480,93 @@ extension HomeViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         
-        // TODO: Allow picking (and then uploading) more than one file at the same time.
-        
-        guard let fileProvider = results.first?.itemProvider else {return} // Pickup the item provider of the first object of the array "results".
-        
-        // Getting the name (name WITHOUT extension) of the file the user picked, using ".suggestedName". We should use ".preferredFilenameExtension" to get the file extension.
-        // To get the the whole name of the picked file including extension file, we shoud get the local URL of the picked file and then extract the last component of the URL using ".lastPathComponent"
-        guard let pickedFileName = fileProvider.suggestedName else {return} // Name of the picked file WITHOUT extension.
-        
-        guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
-        
-        /// Name of the type (as represented in Firebase) of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
-        guard let pickedFileContentTypeName = pickedFileType.preferredMIMEType else {return} // "preferredMIMEType" gives the name of the type of the picked file, corresponding to the "content type" metadata of a file stored in Firebase Cloud Storage.
+        picker.dismiss(animated: true) { // Calling dismiss with completion handling to be able to dismiss the picker whenever the user pick a file or just click on "Cancel". Otherwise, the "Cancel" button on the picker will not work.
+            // TODO: Allow picking (and then uploading) more than one file at the same time.
+            guard let fileProvider = results.first?.itemProvider else {return} // Pickup the item provider of the first object of the array "results".
+            
+            // Getting the name (name WITHOUT extension) of the file the user picked, using ".suggestedName". We should use ".preferredFilenameExtension" to get the file extension.
+            // To get the the whole name of the picked file including extension file, we shoud get the local URL of the picked file and then extract the last component of the URL using ".lastPathComponent"
+            //guard let pickedFileName = fileProvider.suggestedName else {return} // Name of the picked file WITHOUT extension.
+            
+            guard let pickedFileType = fileProvider.registeredContentTypes.first else {return}
+            
+            /// Name of the type (as represented in Firebase) of the local file selected (picked from the gallery (Photos app)). Can be passed as metadata parameter when uploading the file.
+            guard let pickedFileContentTypeName = pickedFileType.preferredMIMEType else {return} // "preferredMIMEType" gives the name of the type of the picked file, corresponding to the "content type" metadata of a file stored in Firebase Cloud Storage.
 
-        guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return} // Extension of the local file picked. Can be used while uploading the file.
-        
-        let pickedFileTypeIdentifier = pickedFileType.identifier // iOS identifier of the type of the picked file. Example "public.jpeg". It is used for loading file representation (for example to get the local URL of the picked file).
+            //guard let pickedFileExtension = pickedFileType.preferredFilenameExtension else {return} // Extension of the local file picked. Can be used while uploading the file.
+            
+            //let pickedFileTypeIdentifier = pickedFileType.identifier // iOS identifier of the type of the picked file. Example "public.jpeg". It is used for loading file representation (for example to get the local URL of the picked file).
 
-        /// pickedFileMetadata contains the metadata of the file the user picked for uploading.
-        let pickedFileMetadata = StorageMetadata()
-        
-        /// Setting the content type of the file to be uploaded. Otherwise, the file will be uploaded in Firebase Storage as "application/octet-stream" (so with no specific extension)...
-        pickedFileMetadata.contentType = pickedFileContentTypeName // FORMAT (example): fileMetadata.contentType = "image/jpeg"
+            /// pickedFileMetadata contains the metadata of the file the user picked for uploading.
+            let pickedFileMetadata = StorageMetadata()
+            
+            /// Setting the content type of the file to be uploaded. Otherwise, the file will be uploaded in Firebase Storage as "application/octet-stream" (so with no specific extension)...
+            pickedFileMetadata.contentType = pickedFileContentTypeName // FORMAT (example): fileMetadata.contentType = "image/jpeg"
+                    
+            // ***** Getting the (temporary) local URL of the picked file *****
+            // loadInPlaceFileRepresentationForTypeIdentifier: is not supported. We use loadFileRepresentationForTypeIdentifier instead to be able to extract the local URL of the file selected for uploading.
+            // The function loadFileRepresentation() below asynchronously writes a copy of the provided typed data to a temporary file, returning a progress object.
+            fileProvider.loadFileRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeURL, maybeError in
                 
-        // ***** Getting the (temporary) local URL of the picked file *****
-        // loadInPlaceFileRepresentationForTypeIdentifier: is not supported. We use loadFileRepresentationForTypeIdentifier instead to be able to extract the local URL of the file selected for uploading.
-        // The function loadFileRepresentation() below asynchronously writes a copy of the provided typed data to a temporary file, returning a progress object.
-        fileProvider.loadFileRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeURL, maybeError in
-            
-            if let gettingURLError = maybeError {
-                AlertManager.showAlert(myTitle: "Upload Error", myMessage: gettingURLError.localizedDescription)
-                return
-            }
-            /// "pickedLocalFileURL" contains the URL of the local file that the user picked/chose for uploading. In fact, when the file is picked, iOS write a copy of the file in a temporary folder and stores the local URL of that temp file in "pickedFileLocalURL". Again, probably for security purposes.
-            guard let pickedLocalFileURL = maybeURL else {return}
-            
-            /// "pickedFileNameWithExtension" contains the complete name of the file picked by the user for uploading... It is extracted from the complete URL of the local (temp) file.
-            let pickedFileNameWithExtension = pickedLocalFileURL.lastPathComponent
-            
-            // Loading in memory the file to be uploaded
-            fileProvider.loadDataRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeData, maybeError in
-                if let uploadError = maybeError {
-                    AlertManager.showAlert(myTitle: "Upload Error", myMessage: uploadError.localizedDescription)
+                if let gettingURLError = maybeError {
+                    AlertManager.showAlert(myTitle: "Upload Error", myMessage: gettingURLError.localizedDescription)
                     return
                 }
-                /// pickedFileData contains the data of the file to be uploaded in the Firebase Cloud Storage.
-                guard let pickedFileData = maybeData else {return}
+                /// "pickedLocalFileURL" contains the URL of the local file that the user picked/chose for uploading. In fact, when the file is picked, iOS write a copy of the file in a temporary folder and stores the local URL of that temp file in "pickedFileLocalURL". Again, probably for security purposes.
+                guard let pickedLocalFileURL = maybeURL else {return}
                 
-                // Uploading the picked file using its local temporary URL
-                uploadFileToCloudStorage(fileNameWithExtension: pickedFileNameWithExtension, fileData: pickedFileData, fileMetadata: pickedFileMetadata)
+                /// "pickedFileNameWithExtension" contains the complete name of the file picked by the user for uploading... It is extracted from the complete URL of the local (temp) file.
+                let pickedFileNameWithExtension = pickedLocalFileURL.lastPathComponent
+                
+                // Loading in memory the file to be uploaded
+                fileProvider.loadDataRepresentation(forTypeIdentifier: pickedFileType.identifier) { [self] maybeData, maybeError in
+                    if let uploadError = maybeError {
+                        AlertManager.showAlert(myTitle: "Upload Error", myMessage: uploadError.localizedDescription)
+                        return
+                    }
+                    /// pickedFileData contains the data of the file to be uploaded in the Firebase Cloud Storage.
+                    guard let pickedFileData = maybeData else {return}
+                    
+                    // Uploading the picked file using its local temporary URL
+                    uploadFileToCloudStorage(fileNameWithExtension: pickedFileNameWithExtension, fileData: pickedFileData, fileMetadata: pickedFileMetadata)
+                
+                } // END of fileProvider.loadDataRepresentation()
             
-            } /// END of fileProvider.loadDataRepresentation()
-        
-        } /// END of fileProvider.loadFileRepresentation()
-        
-        picker.dismiss(animated: true)
+            } // END of fileProvider.loadFileRepresentation()
+        } // END dismiss
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("Selection cancelled")
     }
 }
 
 extension HomeViewController: UIDocumentPickerDelegate {
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        print("URLs of the files selected: \(urls)")
+        
+        let pickedFileURL = urls[0]
+        // let pickedFileURL2 = urls.first // pickedFileURL2 is optional
+        
+        let fileNameWithExtension = pickedFileURL.lastPathComponent
+        print("URL of the file selected pickedFileURL: \(pickedFileURL)")
+        print("Full Name of the file selected fileNameWithExtension: \(fileNameWithExtension)")
+
+        // TODO: Check why putFile doesn't work with PHPickerViewController
+        myStorageRef.child(fileStorageRoot).child(fileNameWithExtension).putFile(from: pickedFileURL) { [self] _, maybeError in
+            if let error = maybeError {
+                AlertManager.showAlert(myTitle: "File Upload Error", myMessage: error.localizedDescription)
+            } else {
+                copyDataFromStorageToRealtimeDB()
+                AlertManager.showAlert(myTitle: "File Uploaded Successfully", myMessage: "The file \"\(fileNameWithExtension)\" has been successfully uploaded.")
+            }
+        }
+        
         dismiss(animated: true)
     }
     
-//    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-//        print("Selection cancelled")
-//    }
-//    
-//    func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
-//        print("Content of indexPath: \(indexPath)")
-//    }
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        print("Selection cancelled")
+    }
+    
 }
