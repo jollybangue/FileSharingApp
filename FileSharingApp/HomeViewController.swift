@@ -227,17 +227,34 @@ class HomeViewController: UIViewController {
             
             mediaPickerVC.delegate = self
             
+            // TODO: The Cancel button of mediaPickerVC doesn't work.
             present(mediaPickerVC, animated: true)
         }
         
         // TODO: Upload Action #2: Upload a file located anywhere else in the phone (any kind of file accessible through the app "Files").
         let uploadFromFilesAction = UIAlertAction(title: "Upload from Files", style: .default) { [self] _ in
             //let filePickerVC = UIDocumentPickerViewController(forExporting: .init())
+            // NOTE: With ".documentDirectory", we have at the bottom of filePickerVC a "Documents" bar with a Tags selector. With ".userDirectory", we don't have that bar.
+           // let localFilesURLs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
             
-            let localFilesURLs = FileManager.default.urls(for: .userDirectory, in: .userDomainMask)
             // TODO: Difference between ".userDirectory" and ".documentDirectory". Also look for "On My iPhone" specific URL...
 
-            let filePickerVC = UIDocumentPickerViewController(forExporting: localFilesURLs, asCopy: true)
+            // let filePickerVC = UIDocumentPickerViewController(forExporting: localFilesURLs, asCopy: true)
+            
+            //let filePickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [.heic, .heif, .livePhoto, .image])
+            
+            // .content, .data, .item
+            
+            let filePickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [.item])
+            
+            filePickerVC.delegate = self
+            
+            // filePickerVC.directoryURL = .documentsDirectory // Use it to set the initial (default) folder for picking files.
+            
+            filePickerVC.modalPresentationStyle = .formSheet
+            
+            filePickerVC.allowsMultipleSelection = false
+            
             present(filePickerVC, animated: true)
         }
         
@@ -520,4 +537,20 @@ extension HomeViewController: PHPickerViewControllerDelegate {
         
         picker.dismiss(animated: true)
     }
+}
+
+extension HomeViewController: UIDocumentPickerDelegate {
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        print("URLs of the files selected: \(urls)")
+        dismiss(animated: true)
+    }
+    
+//    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+//        print("Selection cancelled")
+//    }
+//    
+//    func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
+//        print("Content of indexPath: \(indexPath)")
+//    }
 }
