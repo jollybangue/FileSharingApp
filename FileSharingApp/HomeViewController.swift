@@ -339,8 +339,8 @@ extension HomeViewController: UITableViewDelegate {
             /// Collecting properties of the selected file.
             guard let fileKind = metadata?.contentType,
                   let fileSize = metadata?.size.formatted(), // formatted() adds a comma separator to the value
-                  let fileTimeCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
-                  let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
+                  let fileDateCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
+                  let fileDateModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
                   let fileNameInCloudStorage = metadata?.name,
                   let fileContentType = metadata?.contentType
             else {
@@ -351,7 +351,7 @@ extension HomeViewController: UITableViewDelegate {
             /// Cloud Storage Reference of the selected file.
             let fileToOpenRef = myStorageRef.child(fileStorageRoot).child(fileNameInCloudStorage)
             
-            let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileTimeCreated)\n" + "\nModified: \(filetimeModified)\n", preferredStyle: .alert)
+            let fileDetailsAlert = UIAlertController(title: nameOfTheFileSelectedInHomeTableView, message: "\nKind: \(fileKind) file\n" + "\nSize: \(fileSize) bytes\n" + "\nCreated: \(fileDateCreated)\n" + "\nModified: \(fileDateModified)\n", preferredStyle: .alert)
             
             /// Action #1: Open image in ImageView
             let openImageAction = UIAlertAction(title: "Open in Image View", style: .default) { [self] _ in
