@@ -338,7 +338,7 @@ extension HomeViewController: UITableViewDelegate {
             }
             /// Collecting properties of the selected file.
             guard let fileKind = metadata?.contentType,
-                  let fileSize = metadata?.size.formatted(),
+                  let fileSize = metadata?.size.formatted(), // formatted() adds a comma separator to the value
                   let fileTimeCreated = metadata?.timeCreated?.formatted(date: .abbreviated, time: .standard),
                   let filetimeModified = metadata?.updated?.formatted(date: .abbreviated, time: .standard),
                   let fileNameInCloudStorage = metadata?.name,
