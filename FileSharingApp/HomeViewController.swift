@@ -173,13 +173,13 @@ class HomeViewController: UIViewController {
         myStorageRef.child(fileStorageRoot).child(nameOfTheFile).delete { [self] error in
             
             if let fileDeletionError = error {
-                AlertManager.showAlert(myTitle: "File Deletion Error", myMessage: "\"\(nameOfTheFile)\"\n\(fileDeletionError)")
+                AlertManager.showAlert(myTitle: "File Deletion Error", myMessage: fileDeletionError.localizedDescription)
                 return
                 
             } else {
                 copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
                 // No need to call getAndObserveFileNamesFromRealtimeDB() because it needs to be called only once and it has already been called at the end of the viewDidLoad() function.
-                AlertManager.showAlert(myTitle: "File deleted", myMessage: "The file \"\(nameOfTheFile)\" has been succesfully deleted from the cloud.")
+                AlertManager.showAlert(myTitle: "File Deleted", myMessage: "The file \"\(nameOfTheFile)\" has been succesfully deleted from the cloud.")
             }
         }
     }
@@ -425,7 +425,7 @@ extension HomeViewController: UITableViewDelegate {
             /// Action #7: Delete file
             let deleteFileMenuAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                 // Permanently delete from the Firebase Cloud Storage a selected file.
-                let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \(nameOfTheFileSelectedInHomeTableView) from the cloud?", preferredStyle: .alert)
+                let deleteConfirmationAlert = UIAlertController(title: "Delete File", message: "Do you want to permanently delete the file \"\(nameOfTheFileSelectedInHomeTableView)\" from the cloud?", preferredStyle: .alert)
                 
                 let deleFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                     deleteFileFromCloudStorage(nameOfTheFile: nameOfTheFileSelectedInHomeTableView) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
