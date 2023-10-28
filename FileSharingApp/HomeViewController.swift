@@ -111,7 +111,7 @@ class HomeViewController: UIViewController {
             // Setting file names in Realtime Database...
             
             /// Getting the number of files in the Cloud Storage
-            let numberOfilesInCloudStorage = fileReferences.count
+            let numberOfFilesInCloudStorage = fileReferences.count
             
             /// Getting the number of files currently registered in the Realtime Database.
             realtimeDbRef.child(realtimeDbRoot).getData { [self] maybeError, snapshot in
@@ -121,10 +121,10 @@ class HomeViewController: UIViewController {
                 }
                 guard let numberOfFilesInRealtimeDB = snapshot?.childrenCount else {return}
                 
-                print("INITIALIZATION: Number of files in Firebase Cloud Storage: \(numberOfilesInCloudStorage)")
+                print("INITIALIZATION: Number of files in Firebase Cloud Storage: \(numberOfFilesInCloudStorage)")
                 print("INITIALIZATION: Number of files in Realtime Database: \(numberOfFilesInRealtimeDB)")
                                 
-                if numberOfFilesInRealtimeDB != numberOfilesInCloudStorage {
+                if numberOfFilesInRealtimeDB != numberOfFilesInCloudStorage {
                     // Reinitialization and update of the Realtime Database.
                     print("numberOfilesInCloudStorage IS NOT equal to numberOfFilesInRealtimeDB. *** PROCESSING REALTIME DATABASE REINITIALIZATION AND UPDATE ***")
                     
