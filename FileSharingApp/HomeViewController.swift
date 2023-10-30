@@ -30,7 +30,7 @@ class HomeViewController: UIViewController {
     /// Root folder of the app data in the Realtime database.
     private let realtimeDbRoot = "FileSharingApp"
         
-    /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database. realtimeFileList is used to feed the homeTableView.
+    /// Array containing the realtime details of the files (key, name), details stored in the Firebase realtime database. realtimeLocalFileList is used to feed the homeTableView.
     private var realtimeLocalFileList: [(String, String)] = []
     
     var listener: AuthStateDidChangeListenerHandle?
@@ -121,6 +121,14 @@ class HomeViewController: UIViewController {
                 }
                 guard let numberOfFilesInRealtimeDB = snapshot?.childrenCount else {return}
                 
+                if numberOfFilesInCloudStorage == 0 {  
+                    // When the last item is deleted from cloud storage and realtime database, getAndObserveFileNamesFromRealtimeDB() doesn't work anymore because the reference of realtimeDbRoot is totally removed from the Realtime Database.
+                    // And therefore, we have 0 element in the cloud storage, 0 element in the Realtime Database, but there is still 1 element in realtimeLocalFileList. Since realtimeLocalFileList feeds the homeTableView, even after deleting all the files in the cloud, there is still 1 element showing in the homeTableView.
+                    // The code below removes all elements from realtimeLocalFileList when there is no files in the cloud storage (when numberOfFilesInCloudStorage == 0)
+                    realtimeLocalFileList.removeAll()
+                    homeTableView.reloadData()
+                }
+                
                 print("INITIALIZATION: Number of files in Firebase Cloud Storage: \(numberOfFilesInCloudStorage)")
                 print("INITIALIZATION: Number of files in Realtime Database: \(numberOfFilesInRealtimeDB)")
                                 
@@ -179,6 +187,7 @@ class HomeViewController: UIViewController {
             } else {
                 copyDataFromStorageToRealtimeDB() // Getting the list of files available in the Firebase Cloud Storage and storing them in the Realtime Database.
                 // No need to call getAndObserveFileNamesFromRealtimeDB() because it needs to be called only once and it has already been called at the end of the viewDidLoad() function.
+                
                 AlertManager.showAlert(myTitle: "File Deleted", myMessage: "The file \"\(nameOfTheFile)\" has been succesfully deleted from the cloud.")
             }
         }
@@ -429,7 +438,7 @@ extension HomeViewController: UITableViewDelegate {
                 
                 let deleFileAction = UIAlertAction(title: "Delete", style: .destructive) { [self] _ in
                     deleteFileFromCloudStorage(nameOfTheFile: nameOfTheFileSelectedInHomeTableView) /// Delete permanently the file named "fileToBeDeleted" from the Firebase Cloud Storage.
-                    
+
                     // TODO: For future improvement, instead of permanently delete the files from the Firebase cloud storage, the files could just be moved to a trash or recycle bin.
                 }
                 
