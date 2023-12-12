@@ -108,7 +108,7 @@ class HomeViewController: UIViewController {
             // guard let myPrefixes = result?.prefixes else {return} // Array of folder references
             guard let fileReferences = result?.items else {return} // Array of file references, files stored in the Firebase Cloud Storage.
             
-            // TODO: Realtime Database resource management optimization.
+            // TODO: Realtime Database resource management optimization... We need to compare every single element in Cloud Storage with its equivalent in Realtime Database.
             
             // Setting file names in Realtime Database...
             
@@ -133,7 +133,8 @@ class HomeViewController: UIViewController {
                 
                 print("INITIALIZATION: Number of files in Firebase Cloud Storage: \(numberOfFilesInCloudStorage)")
                 print("INITIALIZATION: Number of files in Realtime Database: \(numberOfFilesInRealtimeDB)")
-                                
+                
+                // Checking the integrity of the realtime database. We update the realtime database ONLY if the numberOfFilesInRealtimeDB is different from the numberOfFilesInCloudStorage
                 if numberOfFilesInRealtimeDB != numberOfFilesInCloudStorage {
                     // Reinitialization and update of the Realtime Database.
                     print("numberOfilesInCloudStorage IS NOT equal to numberOfFilesInRealtimeDB. *** PROCESSING REALTIME DATABASE REINITIALIZATION AND UPDATE ***")
