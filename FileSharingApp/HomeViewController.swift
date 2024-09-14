@@ -8,6 +8,8 @@
 
 // TODO: Fix the remaining TODO tasks...
 
+//TODO: JB 2024/09/13 - Check all the TODO tasks... I'm back.
+
 import UIKit
 import PhotosUI
 import FirebaseAuth
