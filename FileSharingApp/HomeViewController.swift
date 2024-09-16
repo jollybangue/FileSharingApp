@@ -6,9 +6,10 @@
 //
 // Description: A file management iOS app that allows users to upload, download, open, delete, and share files stored in cloud using Firebase features (Firebase Authentication, Firebase Cloud Storage and Firebase Realtime Database).
 
-// TODO: Fix the remaining TODO tasks...
-
 //TODO: JB 2024/09/13 - Check all the TODO tasks... I'm back.
+//TODO: JB 2024/09/15 - Add an overview of each file in the tableview
+//TODO: JB 2024/09/15 - Check if we can download in files (images and/or videos in Photos app)
+// Start with implementing the upload and download progress bar...
 
 import UIKit
 import PhotosUI
@@ -383,11 +384,6 @@ extension HomeViewController: UITableViewDelegate {
                 self.performSegue(withIdentifier: "showWebView", sender: (fileNameInCloudStorage, fileToOpenRef))
             }
             
-            // TODO: Action #3: Open file with default system resources
-            let openFileAction = UIAlertAction(title: "Open with System", style: .default) { _ in
-                // Open the selected file with the system default app...
-            }
-            
             /// Action #4: Download a file located in Firebase Cloud Storage and save it on local device. Download file in app default folder (folder: "FileSharingApp"). The downloaded files are opened by default with Safari.
             let downloadFileAction = UIAlertAction(title: "Download in the Default App Folder", style: .default) { [self] _ in
                 // Download a selected file stored in the cloud and save that file in the local folder "FileSharingApp", which is accessible using the iOS app "Files".
@@ -455,7 +451,6 @@ extension HomeViewController: UITableViewDelegate {
             
             fileDetailsAlert.addAction(openImageAction)
             fileDetailsAlert.addAction(openInWebKitViewAction)
-            fileDetailsAlert.addAction(openFileAction)
             fileDetailsAlert.addAction(downloadFileAction)
             fileDetailsAlert.addAction(downloadInSpecifiedLocationAction)
             fileDetailsAlert.addAction(shareFileAction)
