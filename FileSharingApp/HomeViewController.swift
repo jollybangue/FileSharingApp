@@ -8,7 +8,7 @@
 
 //TODO: JB 2024/09/13 - Check all the TODO tasks... I'm back.
 //TODO: JB 2024/09/15 - Add an overview of each file in the tableview
-//TODO: JB 2024/09/15 - Check if we can download in files (images and/or videos in Photos app)
+//TODO: JB 2024/09/15 - Check if we can download in Photos (images and/or videos in Photos app)
 // Start with implementing the upload and download progress bar...
 
 import UIKit
