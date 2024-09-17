@@ -7,7 +7,7 @@
 // Description: A file management iOS app that allows users to upload, download, open, delete, and share files stored in cloud using Firebase features (Firebase Authentication, Firebase Cloud Storage and Firebase Realtime Database).
 
 //TODO: JB 2024/09/13 - Check all the TODO tasks... I'm back.
-//TODO: JB 2024/09/15 - Add an overview of each file in the tableview
+//TODO: JB 2024/09/15 - Add an overview of each file in the tableview (implement an image in each cell of the TableView)
 //TODO: JB 2024/09/15 - Check if we can download in Photos (images and/or videos in Photos app)
 //TODO: JB 2024/09/16 - Improving desing: When clicking on a file to see details, activate only the options available for the file extension and deactivate the others.
 //TODO: Start with implementing the upload and download progress bar...
